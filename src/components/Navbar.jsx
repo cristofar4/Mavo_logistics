@@ -56,20 +56,20 @@ export default function Navbar() {
     <>
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,backdrop-filter] duration-500 ${
-        scrolled ? 'bg-ivory/85 shadow-[0_1px_0_rgba(32,35,33,.08)] backdrop-blur-xl' : 'bg-transparent'
+        scrolled ? 'bg-ivory/95 shadow-[0_8px_30px_-18px_rgba(32,35,33,.35)] backdrop-blur-xl' : 'bg-ivory'
       }`}
     >
       <div
-        className={`overflow-hidden border-b border-charcoal/10 transition-[max-height,opacity] duration-500 ${
+        className={`overflow-hidden bg-charcoal transition-[max-height,opacity] duration-500 ${
           scrolled ? 'max-h-0 opacity-0' : 'max-h-9 opacity-100'
         }`}
       >
-        <p className="site-x flex h-8 items-center justify-between text-[0.66rem] font-medium uppercase tracking-[0.3em] text-charcoal-muted">
+        <p className="site-x flex h-8 items-center justify-between text-[0.62rem] font-bold uppercase tracking-[0.3em] text-ivory/80">
           <span>Freight / Storage / Delivery</span>
-          <span className="hidden sm:inline">Road · Air · Sea</span>
+          <span className="hidden text-ivory/50 sm:inline">People move possibilities</span>
         </p>
       </div>
-      <nav aria-label="Main" className={`site-x flex items-center justify-between gap-6 transition-[height] duration-500 ${scrolled ? 'h-16' : 'h-[4.75rem]'}`}>
+      <nav aria-label="Main" className={`site-x flex items-center justify-between gap-6 transition-[height] duration-500 ${scrolled ? 'h-16' : 'h-[4.5rem]'}`}>
         <a href="#top" className="rounded-md" aria-label="MOVA Logistics, back to top">
           <Logo />
         </a>
@@ -88,7 +88,7 @@ export default function Navbar() {
         </ul>
 
         <div className="flex items-center gap-2">
-          <button type="button" onClick={quote} className="btn-primary hidden !py-2.5 sm:inline-flex">
+          <button type="button" onClick={quote} className="btn-primary hidden !min-h-[42px] !px-5 !py-2 !text-[0.88rem] sm:inline-flex">
             Get a quote
           </button>
           <button

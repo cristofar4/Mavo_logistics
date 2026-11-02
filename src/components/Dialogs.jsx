@@ -16,7 +16,7 @@ function ServiceDetail({ id }) {
       <div className="relative aspect-[16/8] overflow-hidden sm:aspect-[16/6.5]">
         <Img key={s.id} image={s.image} sizes="(min-width: 900px) 900px, 100vw" className="h-full w-full animate-[settle_900ms_cubic-bezier(.22,1,.36,1)] object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 to-transparent" aria-hidden="true" />
-        <p className="absolute bottom-5 left-6 max-w-md font-serif text-2xl italic text-ivory sm:left-8 sm:text-3xl">{s.short}</p>
+        <p className="absolute bottom-5 left-6 max-w-md text-2xl font-extrabold tracking-[-0.02em] text-white sm:left-8 sm:text-3xl">{s.short}</p>
       </div>
       <div className="grid gap-8 px-6 py-7 sm:px-8 md:grid-cols-5">
         <div className="space-y-4 text-[0.98rem] leading-relaxed text-charcoal-muted md:col-span-3">

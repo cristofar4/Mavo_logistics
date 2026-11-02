@@ -20,13 +20,13 @@ export default function QuoteForm({ initialService = '', onDone }) {
         {status === 'sent' ? (
           <>
             <p className="eyebrow mb-3">Request received</p>
-            <h3 className="font-serif text-4xl italic text-charcoal">Thank you.</h3>
+            <h3 className="text-3xl font-extrabold tracking-[-0.03em] text-charcoal">Thank you.</h3>
             <p className="mt-3 max-w-md text-charcoal-muted">Your quote request has been sent. Our team will review the details and get back to you.</p>
           </>
         ) : (
           <>
             <p className="eyebrow mb-3">Demo complete</p>
-            <h3 className="font-serif text-4xl italic text-charcoal">Your form passed every check.</h3>
+            <h3 className="text-3xl font-extrabold tracking-[-0.03em] text-charcoal">Your form passed every check.</h3>
             <p className="mt-3 max-w-md text-charcoal-muted">
               Because no form service is connected yet, this request was <strong className="font-semibold text-charcoal">not sent</strong>.
               Connect an endpoint with VITE_FORM_ENDPOINT to receive real enquiries.

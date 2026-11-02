@@ -31,12 +31,12 @@ Both the **Get a quote** form and the **partnership contract book** go through `
 | Section | Notes |
 | --- | --- |
 | Navigation | Sticky, background turns on as you scroll, highlights the section in view, full mobile menu with focus trap, Escape and a close button |
-| Hero | Editorial split, staggered headline, masked image reveal with a settling zoom |
-| Services | Asymmetric mosaic with angled image edges. Hover, keyboard focus or touch reveals more detail; each card opens a service detail dialog with a quote shortcut |
+| Hero | Bold split layout with the orange brand bracket, staggered headline, slanted photo panel that bleeds off the right edge and reveals with a settling zoom |
+| Services | Slanted, rounded card mosaic as in the design. Hover, keyboard focus or touch reveals more detail; each card opens a service detail dialog with a quote shortcut |
 | Contract scene | The signature animation (see below) |
-| Our fleet | Accessible tabs (arrow keys, Home, End) with image wipes. Unknown specs show "To be confirmed" |
-| Coverage | Dotted world map with route lines that draw in. Clearly labelled as illustrative |
-| Industries | Editorial index with a crossfading image stage |
+| Our fleet | MOVA vehicle line up with accessible tabs (arrow keys, Home, End). Unknown specs show "To be confirmed" |
+| Coverage | Relief world map with glowing route lines that draw in. Clearly labelled as illustrative |
+| Industries | Slanted photo cards with captions and examples |
 | Process | Three steps joined by a line that draws in on scroll |
 | About | Editorial photo layout and three value statements |
 | FAQ | Accessible accordion with animated expansion |
@@ -46,13 +46,17 @@ Both the **Get a quote** form and the **partnership contract book** go through `
 
 `src/components/ContractScene.jsx` and `src/components/ContractBook.jsx`
 
-1. When about 35% of the section has entered the viewport, a GSAP timeline plays once: the representative rises from behind the ivory parapet wall (1.1s), a cast shadow and contact shadow follow, the cloud bubble pops in near his head (0.4s), then the headline and action appear (0.5s).
-2. The cloud asks **"Ready to sign with us?"** with **Yes** and **Not yet**.
+1. When about 35% of the section has entered the viewport, a GSAP timeline plays once:
+   * the representative slides out from behind the ivory wall panel that carries the headline (1.1s)
+   * he raises the pen hand beside his head and waves from behind the wall edge while the cloud says **"Hi there!"**
+   * he lowers the hand and reaches toward the visitor, offering the pen; the wall's clip slides away so the hand comes around the edge
+   * the cloud changes to **"Ready to sign with us?"** (0.4s), then the headline and action appear (0.5s)
+2. The cloud offers **Yes, let’s go** and **Not yet**.
 3. **Yes** (or **Let’s work together**) makes the contract book fly out of the representative’s folder to the centre of the screen while the page behind blurs. The cover swings open to reveal a two page enquiry form with a signature pad (draw with mouse, pen or finger, or type your name).
 4. **Sign** validates the form, closes the cover, flies the book back to the representative, removes the blur and the cloud says thank you. In demo mode the thank you message clearly says nothing was sent.
 5. Closing the book without signing returns the cloud to a friendly "No rush" message.
 
-Layers, back to front: back wall with an arched opening, pillar, cast shadow, representative, front parapet, cloud. The representative is never faded over the wall; the parapet physically occludes him as he rises. After the entrance only a very slow breathing movement remains. With `prefers-reduced-motion: reduce` the finished scene is shown immediately and the book opens without movement.
+Layers, back to front: blurred office backdrop, representative body (clipped at the wall edge) with a cast shadow, the ivory wall panel, the pen hand (its own layer so it can wave), the cloud. The body is never faded over the wall; the wall edge physically hides him as he slides out. After the entrance only a very slow breathing movement remains. With `prefers-reduced-motion: reduce` the finished scene is shown immediately and the book opens without movement.
 
 ## Editing content
 
@@ -62,22 +66,21 @@ Values set to `null` (email, phone, address, hours, social URLs, fleet specs) re
 
 ## Images
 
-Images are in `public/images` as WebP at 800 and 1600 pixels wide (`name-800.webp`, `name-1600.webp`). They carry width and height to reserve layout space, and everything below the hero is lazy loaded. To replace an image, export both sizes with the same name and update `w`/`h` in `src/content/site.js` if the aspect ratio changes.
+Images are in `public/images` as WebP at 800 and 1600 pixels wide (`name-800.webp`, `name-1600.webp`); the vehicle cut outs only come in 800 (`widths: [800]` in `site.js`). They carry width and height to reserve layout space, and everything below the hero is lazy loaded. To replace an image, export both sizes with the same name and update `w`/`h` in `src/content/site.js` if the aspect ratio changes.
 
 | File | Source |
 | --- | --- |
 | `hero-port`, `road`, `air`, `sea` | Supplied by MOVA |
-| `representative` | Cut out of the supplied design reference, upscaled and background removed (see below) |
+| `rep-body`, `rep-hand` | The representative from the supplied design, upscaled, cut out and split into body and pen hand layers (the shirt behind the hand was restored) |
+| `vehicle-van`, `vehicle-cargo`, `vehicle-heavy` | MOVA branded vehicles from the supplied design, upscaled and cut out |
+| `office` | Unsplash photo `1556761175-5973dc0f32e7`, blurred and warmed |
+| `world-relief` | Rendered from Natural Earth land data (public domain) |
 | `warehouse` | Unsplash photo `1616401784845-180882ba9ba8` |
 | `about` | Unsplash photo `1586528116311-ad8dd3c8310d` |
 | `retail` | Unsplash photo `1566576721346-d4a3b4eaeb55` |
 | `manufacturing` | Unsplash photo `1567789884554-0b844b597180` |
 | `agriculture` | Unsplash photo `1500937386664-56d1dfef3854` |
 | `construction` | Unsplash photo `1541888946425-d81bb19240f5` |
-| `fleet-van` | Unsplash photo `1612630741022-b29ec17d013d` |
-| `fleet-cargo` | Unsplash photo `1519003722824-194d4455a60c` |
-| `fleet-heavy` | Unsplash photo `1591768793355-74d04bb6608f` |
-| `world-dots.svg` | Generated from Natural Earth land data (public domain) |
 
 Unsplash photos are used under the Unsplash License. View any of them at `https://unsplash.com/photos/<id>`.
 
@@ -85,15 +88,15 @@ Unsplash photos are used under the Unsplash License. View any of them at `https:
 
 These are needed before launch:
 
-1. **Representative photo.** The current cut out comes from the low resolution design reference, so it is slightly soft on large screens. Replace `public/images/representative-800.webp` and `representative-1600.webp` with a real, high resolution transparent photo: a MOVA team member cropped at the waist, holding an open contract folder in their left hand and offering a pen with their right, body edge straight on the left where it meets the pillar. Keep the same framing or adjust the hotspot in `ContractScene.jsx` (`bookOrigin`) and the `0.143` pillar ratio in `index.css`.
-2. **Optional representative video.** For realistic hand movement, supply a transparent video and set `representativeVideo.webm` (and `.mov` for Safari) in `site.js`. The scene will use it instead of the still.
+1. **Representative photos.** The current cut outs come from the low resolution design reference, so they are slightly soft on large screens, and the wave is made by moving a still photo of the pen hand. For a sharper and more natural result, shoot a MOVA team member against a plain background and supply two transparent images with the same framing: the body (cropped at the waist, open contract folder in one hand, body edge straight where it meets the wall) and the pen hand on its own. Replace `rep-body-*` and `rep-hand-*`, then update `representativeGeometry` in `site.js` (`edgeRatio`, `aspect`, `handBox`) and the folder hotspot in `ContractScene.jsx` (`bookOrigin`).
+2. **Optional representative video.** For a truly realistic wave, supply a transparent video and set `representativeVideo.webm` (and `.mov` for Safari) in `site.js`. The scene will use it instead of the two still layers.
 3. **Form endpoint.** Set `VITE_FORM_ENDPOINT` (see above).
 4. **Contact details.** Email, phone, address, opening hours.
 5. **Social profile URLs.**
 6. **Privacy policy and terms.** Placeholder text is shown in the dialogs.
 7. **Fleet specifications.** Payload, load space, pallet spaces, trailer types and availability.
 8. **Real service areas.** The coverage map is illustrative. To show confirmed locations, edit `NODES` and `ROUTES` in `Coverage.jsx`.
-9. **Own fleet photography.** The fleet section uses stock photos; MOVA branded vehicles would be stronger.
+9. **Own fleet photography.** The vehicle cut outs come from the design reference and are soft when enlarged; real photos of MOVA vehicles would be sharper.
 
 ## Project structure
 

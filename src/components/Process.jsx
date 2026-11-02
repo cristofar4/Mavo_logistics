@@ -14,10 +14,10 @@ export default function Process() {
     () => {
       const mm = gsap.matchMedia()
       mm.add(MOTION_OK, () => {
-        const tl = gsap.timeline({ scrollTrigger: { trigger: '[data-steps]', start: 'top 75%', once: true } })
-        tl.fromTo('[data-line-fill]', { scaleX: 0, scaleY: 0 }, { scaleX: 1, scaleY: 1, duration: 1.6, ease: 'power2.inOut' })
-          .from('[data-step-dot]', { scale: 0.4, backgroundColor: '#F5F2EA', color: '#D96936', duration: 0.4, stagger: 0.5, ease: 'back.out(2)' }, 0.05)
-          .from('[data-step-body]', { autoAlpha: 0, y: 20, duration: 0.5, stagger: 0.5 }, 0.15)
+        const tl = gsap.timeline({ scrollTrigger: { trigger: '[data-steps]', start: 'top 78%', once: true } })
+        tl.fromTo('[data-line-fill]', { scaleX: 0, scaleY: 0 }, { scaleX: 1, scaleY: 1, duration: 1.5, ease: 'power2.inOut' })
+          .from('[data-step-dot]', { scale: 0.3, autoAlpha: 0, duration: 0.4, stagger: 0.45, ease: 'back.out(2.2)' }, 0)
+          .from('[data-step-body]', { autoAlpha: 0, y: 16, duration: 0.5, stagger: 0.45 }, 0.15)
       })
       return () => mm.revert()
     },
@@ -25,34 +25,35 @@ export default function Process() {
   )
 
   return (
-    <section id="process" ref={root} className="section-y relative bg-ivory-soft" aria-labelledby="process-title">
+    <section id="process" ref={root} className="relative bg-ivory py-14 sm:py-16 lg:py-20" aria-labelledby="process-title">
       <div className="site-x">
-        <div className="mx-auto max-w-2xl text-center">
-          <p data-reveal className="eyebrow mb-4">How it works</p>
-          <h2 data-reveal id="process-title" className="display text-[clamp(2.3rem,4.6vw,4rem)]">
-            A clear path <em className="accent">from start to finish.</em>
-          </h2>
-          <p data-reveal className="mt-5 text-[1.02rem] text-charcoal-muted">{process.body}</p>
-        </div>
+        <h2 data-reveal id="process-title" className="h2">
+          A clear path from start to finish.
+        </h2>
+        <p data-reveal className="lead">
+          {process.body}
+        </p>
 
-        <ol data-steps className="relative mt-16 grid gap-12 md:grid-cols-3 md:gap-8">
-          {/* Connecting line: horizontal on desktop, vertical on mobile */}
-          <span className="absolute left-[1.375rem] top-6 bottom-6 w-px bg-charcoal/10 md:left-[16.66%] md:right-[16.66%] md:top-[1.375rem] md:bottom-auto md:h-px md:w-auto" aria-hidden="true">
+        <ol data-steps className="relative mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
+          {/* Connecting line: through the number badges, horizontal on desktop, vertical on mobile */}
+          <span className="absolute bottom-4 left-[1.25rem] top-4 w-[2px] bg-orange/15 md:bottom-auto md:left-[16.66%] md:right-[16.66%] md:top-[1.2rem] md:h-[2px] md:w-auto" aria-hidden="true">
             <span data-line-fill className="absolute inset-0 origin-top bg-orange md:origin-left" />
           </span>
           {process.steps.map((s, i) => {
             const Icon = ICONS[i]
             return (
-              <li key={s.title} className="relative grid grid-cols-[auto_1fr] gap-5 md:grid-cols-1 md:justify-items-center md:text-center">
-                <span data-step-dot className="relative z-10 flex h-11 w-11 items-center justify-center rounded-full bg-orange text-sm font-semibold text-ivory shadow-[0_0_0_6px_#FAF8F3]">
+              <li key={s.title} className="relative grid grid-cols-[auto_1fr] gap-5 md:grid-cols-1 md:justify-items-center">
+                <span data-step-dot className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-orange text-sm font-extrabold text-white ring-[6px] ring-ivory">
                   0{i + 1}
                 </span>
-                <div data-step-body className="md:mt-4">
-                  <span className="mb-4 hidden h-14 w-14 items-center justify-center rounded-2xl border border-charcoal/10 bg-ivory text-charcoal md:mx-auto md:flex">
-                    <Icon />
+                <div data-step-body className="flex gap-4 md:mt-2 md:max-w-xs">
+                  <span className="mt-0.5 shrink-0 text-charcoal">
+                    <Icon className="h-9 w-9" />
                   </span>
-                  <h3 className="text-xl font-medium tracking-tight">{s.title}</h3>
-                  <p className="mt-2 max-w-xs text-[0.95rem] leading-relaxed text-charcoal-muted md:mx-auto">{s.body}</p>
+                  <div>
+                    <h3 className="text-[1.02rem] font-extrabold tracking-tight">{s.title}</h3>
+                    <p className="mt-1 text-[0.88rem] leading-relaxed text-charcoal-muted">{s.body}</p>
+                  </div>
                 </div>
               </li>
             )

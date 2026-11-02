@@ -189,8 +189,8 @@ export default function ContractBook({ open, originRef, onFinished }) {
                   <span className="text-[0.68rem] font-semibold uppercase tracking-[0.35em]">MOVA Logistics</span>
                 </div>
                 <p data-page-item className="eyebrow mt-8">Partnership enquiry</p>
-                <h2 data-page-item id={`${ID}-title`} className="mt-2 font-serif text-[2.1rem] leading-[1.05] text-charcoal sm:text-[2.5rem]">
-                  Let’s plan your journey <em className="text-orange">together.</em>
+                <h2 data-page-item id={`${ID}-title`} className="mt-2 text-[1.9rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-charcoal sm:text-[2.3rem]">
+                  Let’s plan your journey <span className="text-orange">together.</span>
                 </h2>
                 <p data-page-item className="mt-3 text-[0.95rem] leading-relaxed text-charcoal-muted">
                   Fill in these pages and sign at the end. Our team reviews every enquiry and plans the details with you before anything is agreed.
@@ -231,7 +231,7 @@ export default function ContractBook({ open, originRef, onFinished }) {
                     id={`${ID}-typed`}
                     value={typedSig}
                     onChange={(e) => setTypedSig(e.target.value)}
-                    className="field field-paper mt-1 font-serif text-xl italic"
+                    className="field field-paper mt-1 text-lg font-semibold italic"
                     autoComplete="name"
                     aria-describedby={extraErrors.signature ? `${ID}-signature-error` : undefined}
                   />
@@ -290,7 +290,7 @@ export default function ContractBook({ open, originRef, onFinished }) {
                 <div className="relative flex h-full flex-col items-center justify-center px-8 text-center">
                   <LogoMark className="h-10 w-auto text-ivory" />
                   <p className="mt-5 text-[0.7rem] font-semibold uppercase tracking-[0.5em] text-ivory/70">MOVA Logistics</p>
-                  <p className="mt-8 font-serif text-5xl italic text-ivory sm:text-6xl">Contract</p>
+                  <p className="mt-8 text-4xl font-extrabold uppercase tracking-[0.12em] text-ivory sm:text-5xl">Contract</p>
                   <span className="mt-6 h-px w-24 bg-orange" />
                   <p className="mt-6 text-sm text-ivory/60">Partnership enquiry</p>
                 </div>

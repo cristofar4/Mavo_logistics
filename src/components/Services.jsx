@@ -6,52 +6,44 @@ import { gsap, useGSAP, MOTION_OK } from '../lib/gsap'
 import Img from './Img'
 import { ArrowRight } from './Icons'
 
-/* Layout recipe for each card: grid placement, height and angled edge. */
+/* Grid placement and height for each card, following the design's slanted mosaic. */
 const LAYOUT = {
-  road: { cell: 'md:col-span-6 lg:col-span-5 lg:row-span-2', h: 'h-[360px] md:h-[400px] lg:h-full', clip: 'svc-clip-a', sizes: '(min-width:1024px) 42vw, 100vw' },
-  air: { cell: 'md:col-span-3 lg:col-span-3 lg:row-span-2 lg:mt-12', h: 'h-[380px] md:h-[440px] lg:h-[calc(100%-3rem)]', clip: 'svc-clip-b', sizes: '(min-width:1024px) 25vw, (min-width:768px) 50vw, 100vw' },
-  sea: { cell: 'md:col-span-3 lg:col-span-4', h: 'h-[320px] md:h-[440px] lg:h-full', clip: 'svc-clip-c', sizes: '(min-width:1024px) 34vw, (min-width:768px) 50vw, 100vw' },
-  warehousing: { cell: 'md:col-span-6 lg:col-span-4', h: 'h-[320px] md:h-[320px] lg:h-full', clip: 'svc-clip-d', sizes: '(min-width:1024px) 34vw, 100vw' },
+  road: { o: '50% calc(50% - 24px)', cell: 'md:col-span-6 lg:col-span-5 lg:row-span-2 lg:mt-12', h: 'h-[300px] md:h-[340px] lg:h-auto', pos: 'object-[50%_60%]', sizes: '(min-width:1024px) 45vw, 100vw' },
+  air: { o: '50% calc(50% + 24px)', cell: 'md:col-span-3 lg:col-span-3 lg:row-span-2 lg:mb-12', h: 'h-[300px] md:h-[360px] lg:h-auto', pos: 'object-[66%_50%]', sizes: '(min-width:1024px) 28vw, (min-width:768px) 50vw, 100vw' },
+  sea: { o: '50% calc(100% + 6px)', cell: 'md:col-span-3 lg:col-span-4', h: 'h-[260px] md:h-[360px] lg:h-auto', pos: 'object-[45%_62%]', sizes: '(min-width:1024px) 36vw, (min-width:768px) 50vw, 100vw' },
+  warehousing: { o: '50% -6px', cell: 'md:col-span-6 lg:col-span-4', h: 'h-[260px] md:h-[280px] lg:h-auto', pos: 'object-[55%_55%]', sizes: '(min-width:1024px) 36vw, 100vw' },
 }
 
-function ServiceCard({ service, index, onOpen }) {
+function ServiceCard({ service, onOpen }) {
   const l = LAYOUT[service.id]
   return (
     <article data-card className={`group relative ${l.cell} ${l.h}`}>
-      <div className={`svc-shape absolute inset-0 overflow-hidden rounded-[1.6rem] bg-charcoal ${l.clip}`}>
-        <Img image={service.image} sizes={l.sizes} className={`zoom-img h-full w-full object-cover ${service.id === 'air' ? 'object-[62%_50%]' : service.id === 'sea' ? 'object-[50%_60%]' : ''}`} alt="" />
-        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/35 to-charcoal/5 transition-opacity duration-500 group-hover:from-charcoal/95" aria-hidden="true" />
+      <div className="skew-card absolute inset-0 bg-charcoal shadow-soft" style={{ '--o': l.o }}>
+        <div className="unskew-media absolute inset-0">
+          <Img image={service.image} sizes={l.sizes} className={`zoom-img h-full w-full object-cover ${l.pos}`} alt="" />
+        </div>
+        <div className="unskew-media absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/25 to-transparent transition-opacity duration-500" aria-hidden="true" />
       </div>
-      <div className="pointer-events-none relative flex h-full flex-col justify-between p-6 text-ivory sm:p-7">
-        <span className="text-xs font-medium tracking-[0.3em] text-ivory/75" aria-hidden="true">
-          0{index + 1}
-        </span>
-        <div className={`max-w-sm ${service.id === 'road' ? 'lg:pr-10' : ''} ${service.id === 'sea' ? 'md:pl-4 lg:pl-6' : ''}`}>
-          <h3 className="text-[1.65rem] font-medium leading-tight tracking-tight">
+      <div className="pointer-events-none relative flex h-full flex-col justify-end px-7 pb-6 pt-6 text-white sm:px-9 lg:px-10">
+        <div className="max-w-[19rem]">
+          <h3 className="text-[1.3rem] font-extrabold leading-tight tracking-tight">
             <button
               type="button"
               onClick={() => onOpen(service.id)}
               aria-haspopup="dialog"
-              className="pointer-events-auto text-left outline-none after:absolute after:inset-0 after:rounded-[1.6rem] after:content-[''] focus-visible:after:ring-2 focus-visible:after:ring-orange focus-visible:after:ring-offset-4 focus-visible:after:ring-offset-ivory"
+              className="pointer-events-auto text-left outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:rounded-2xl focus-visible:after:ring-2 focus-visible:after:ring-orange focus-visible:after:ring-offset-4 focus-visible:after:ring-offset-ivory"
             >
               {service.title}
               <span className="sr-only">. View service details</span>
             </button>
           </h3>
-          <p className="mt-1.5 text-[0.95rem] text-ivory/85">{service.short}</p>
+          <p className="mt-1 text-[0.86rem] font-medium text-white/85">{service.short}</p>
           <div className="card-extra">
             <div className="min-h-0 overflow-hidden">
-              <p className="pt-4 text-sm leading-relaxed text-ivory/85">{service.summary}</p>
-              <ul className="mt-3 flex flex-wrap gap-1.5" aria-label={`${service.title} suits`}>
-                {service.suits.map((s) => (
-                  <li key={s} className="rounded-full border border-ivory/25 bg-ivory/10 px-2.5 py-1 text-[0.72rem] backdrop-blur-sm">
-                    {s}
-                  </li>
-                ))}
-              </ul>
-              <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-ivory">
+              <p className="pt-3 text-[0.82rem] leading-relaxed text-white/85">{service.summary}</p>
+              <span className="mt-3 inline-flex items-center gap-2 rounded-md bg-orange px-3 py-1.5 text-[0.78rem] font-bold text-white">
                 View details
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
               </span>
             </div>
           </div>
@@ -70,18 +62,16 @@ export default function Services() {
     () => {
       const mm = gsap.matchMedia()
       mm.add(MOTION_OK, () => {
-        const cards = gsap.utils.toArray('[data-card]')
-        gsap.from(cards, {
+        gsap.from('[data-card]', {
           autoAlpha: 0,
-          y: 60,
+          x: 50,
           duration: 0.9,
           stagger: 0.12,
           ease: 'power3.out',
-          scrollTrigger: { trigger: '[data-cards]', start: 'top 80%', once: true },
+          scrollTrigger: { trigger: '[data-cards]', start: 'top 82%', once: true },
         })
-        cards.forEach((card) => {
-          const img = card.querySelector('img')
-          gsap.fromTo(img, { scale: 1.16 }, { scale: 1, duration: 1.6, ease: 'power2.out', scrollTrigger: { trigger: card, start: 'top 90%', once: true } })
+        gsap.utils.toArray('[data-card] img').forEach((img) => {
+          gsap.fromTo(img, { scale: 1.15 }, { scale: 1, duration: 1.6, ease: 'power2.out', scrollTrigger: { trigger: img, start: 'top 92%', once: true } })
         })
       })
       return () => mm.revert()
@@ -90,23 +80,25 @@ export default function Services() {
   )
 
   return (
-    <section id="services" ref={root} className="section-y relative" aria-labelledby="services-title">
+    <section id="services" ref={root} className="relative py-14 sm:py-16 lg:py-20" aria-labelledby="services-title">
       <div className="site-x">
-        <div className="mb-12 grid gap-6 lg:mb-16 lg:grid-cols-12 lg:items-end">
-          <div className="lg:col-span-7">
-            <p data-reveal className="eyebrow mb-4">Our services</p>
-            <h2 data-reveal id="services-title" className="display text-[clamp(2.3rem,4.6vw,4rem)]">
-              Every route. <em className="accent">One trusted partner.</em>
+        <div className="mb-9 flex flex-col gap-3 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 data-reveal id="services-title" className="h2">
+              Every route. One trusted partner.
             </h2>
+            <p data-reveal className="lead">
+              Tailored solutions to keep your business moving.
+            </p>
           </div>
-          <p data-reveal className="max-w-md text-[1.02rem] leading-relaxed text-charcoal-muted lg:col-span-4 lg:col-start-9">
-            Tailored solutions to keep your business moving. Choose a service to see how we plan it, what it suits and how to get started.
+          <p data-reveal className="max-w-sm text-[0.9rem] text-charcoal-muted lg:text-right">
+            Choose a service to see how we plan it, what it suits and how to get started.
           </p>
         </div>
 
-        <div data-cards className="grid gap-4 md:grid-cols-6 lg:h-[640px] lg:grid-cols-12 lg:grid-rows-2 lg:gap-5">
-          {services.map((s, i) => (
-            <ServiceCard key={s.id} service={s} index={i} onOpen={openService} />
+        <div data-cards className="grid gap-4 md:grid-cols-6 md:px-4 lg:h-[470px] lg:grid-cols-12 lg:grid-rows-2 lg:gap-x-5 lg:gap-y-3 lg:px-12">
+          {services.map((s) => (
+            <ServiceCard key={s.id} service={s} onOpen={openService} />
           ))}
         </div>
       </div>

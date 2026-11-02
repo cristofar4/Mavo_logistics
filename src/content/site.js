@@ -55,15 +55,21 @@ export const images = {
   manufacturing: { name: 'manufacturing', w: 1600, h: 1066, alt: 'Robotic arms assembling a car body on a production line' },
   agriculture: { name: 'agriculture', w: 1600, h: 1066, alt: 'Two people shaking hands in a golden wheat field' },
   construction: { name: 'construction', w: 1600, h: 1066, alt: 'Construction team in high visibility vests on a large building site' },
-  fleetVan: { name: 'fleet-van', w: 1600, h: 2400, alt: 'Courier loading boxes into an orange delivery van' },
-  fleetCargo: { name: 'fleet-cargo', w: 1600, h: 1061, alt: 'Cargo truck travelling through a desert canyon road' },
-  fleetHeavy: { name: 'fleet-heavy', w: 1600, h: 1065, alt: 'Heavy haulage truck carrying an oversized load on a highway' },
+  office: { name: 'office', w: 1600, h: 900, alt: '' },
+  worldMap: { name: 'world-relief', w: 1600, h: 736, alt: '' },
+  vehicleVan: { name: 'vehicle-van', w: 729, h: 391, widths: [800], alt: 'White MOVA Logistics delivery van' },
+  vehicleCargo: { name: 'vehicle-cargo', w: 744, h: 472, widths: [800], alt: 'White MOVA Logistics rigid cargo truck' },
+  vehicleHeavy: { name: 'vehicle-heavy', w: 763, h: 467, widths: [800], alt: 'White heavy freight tractor unit with curtain side trailer' },
   /*
-   * Representative for the contract scene.
-   * Replace with your own transparent cut out (same naming, WebP or PNG with alpha).
-   * The figure should be cropped at the waist; the left body edge sits behind the pillar.
+   * Representative for the contract scene, in two layers so the hand can wave:
+   *   rep-body: the person with the pen hand removed (shirt restored behind it)
+   *   rep-hand: the pen hand on its own, positioned with `handBox` (percent of the body image)
+   * Both are cut from the same 1712 x 1480 source. The body's left edge is straight at
+   * `edgeRatio` of the image width; it lines up with the wall edge in the scene.
+   * Replace with your own transparent photo shoot assets using the same framing.
    */
-  representative: { name: 'representative', w: 1600, h: 1383, alt: 'Smiling MOVA Logistics representative holding an open contract folder and offering a pen' },
+  repBody: { name: 'rep-body', w: 1600, h: 1383, alt: 'Smiling MOVA Logistics representative holding an open contract folder' },
+  repHand: { name: 'rep-hand', w: 396, h: 377, alt: 'Representative offering a pen' },
 }
 
 /*
@@ -71,6 +77,12 @@ export const images = {
  * Supply a transparent video (WebM with alpha, plus HEVC with alpha .mov for Safari)
  * of the representative to replace the still image. Keep the same framing.
  */
+export const representativeGeometry = {
+  edgeRatio: 0.1437, // straight body edge, as a fraction of image width
+  aspect: 1712 / 1480,
+  handBox: { left: 5.2, top: 56.69, width: 24.77, height: 27.23 }, // percent of the body image
+}
+
 export const representativeVideo = {
   webm: null, // e.g. '/media/representative.webm'
   mov: null, // e.g. '/media/representative.mov'
@@ -151,6 +163,7 @@ export const contractScene = {
   body: 'Tell us what you need to move. Let us plan the journey.',
   cta: 'Let’s work together',
   bubble: 'Ready to sign with us?',
+  hello: 'Hi there!',
   bubbleYes: 'Yes, let’s go',
   bubbleNo: 'Not yet',
   bubbleLater: 'No rush. I will be right here when you are ready.',
@@ -167,7 +180,7 @@ export const fleet = [
     lead: 'Flexible capacity for local and regional drops.',
     body: 'Compact and quick to load, vans suit smaller consignments that need to reach many addresses in towns and cities.',
     suits: ['Parcels and small consignments', 'Retail and ecommerce orders', 'Multi stop routes in towns and cities'],
-    image: images.fleetVan,
+    image: images.vehicleVan,
     specs: [
       { label: 'Payload', value: null },
       { label: 'Load space', value: null },
@@ -181,7 +194,7 @@ export const fleet = [
     lead: 'Room for larger shipments across regions.',
     body: 'Rigid cargo trucks carry palletised and bulky goods on scheduled routes and dedicated runs between sites.',
     suits: ['Palletised goods', 'Furniture and bulky items', 'Scheduled distribution between sites'],
-    image: images.fleetCargo,
+    image: images.vehicleCargo,
     specs: [
       { label: 'Payload', value: null },
       { label: 'Pallet spaces', value: null },
@@ -195,7 +208,7 @@ export const fleet = [
     lead: 'Built for the biggest loads.',
     body: 'Tractor units and trailers handle full loads, machinery and oversized cargo over longer distances.',
     suits: ['Full truckloads', 'Machinery and construction materials', 'Long distance haulage'],
-    image: images.fleetHeavy,
+    image: images.vehicleHeavy,
     specs: [
       { label: 'Payload', value: null },
       { label: 'Trailer types', value: null },
