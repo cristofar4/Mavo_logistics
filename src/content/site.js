@@ -82,7 +82,7 @@ export const representativeGeometry = {
   edgeRatio: 0.1437, // straight body edge, as a fraction of image width
   aspect: 1712 / 1480,
   handBox: { left: 5.2, top: 56.69, width: 24.77, height: 27.23 }, // percent of the body image
-  wrist: '74% 80%', // pivot for the hand, relative to the hand box
+  penTip: { x: 28.5, y: 74.9 }, // where the pen tip glints, percent of the body image
 }
 
 export const representativeVideo = {

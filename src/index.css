@@ -322,6 +322,36 @@
     bottom: calc(var(--pb) * -1cqh);
     transform-origin: 14% 100%;
   }
+  .cscene-light {
+    position: absolute;
+    top: -15%;
+    bottom: -15%;
+    left: 10%;
+    width: 75%;
+    background: radial-gradient(closest-side, rgba(255, 220, 182, 0.55), rgba(255, 220, 182, 0));
+    mix-blend-mode: screen;
+    opacity: 0.45;
+    pointer-events: none;
+  }
+  .cscene-edge-shadow {
+    left: calc(var(--edge) * 1cqw);
+    width: 9cqw;
+    background: linear-gradient(90deg, rgba(20, 20, 18, 0.3), rgba(20, 20, 18, 0));
+    z-index: 1;
+  }
+  .cscene-sheen {
+    transform: translateX(-120%) skewX(-18deg);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0));
+    mix-blend-mode: screen;
+  }
+  .cscene-glint {
+    width: 9%;
+    aspect-ratio: 1;
+    margin: -4.5% 0 0 -4.5%;
+    opacity: 0;
+    filter: drop-shadow(0 0 6px rgba(255, 210, 160, 0.9));
+    pointer-events: none;
+  }
   .cscene-cast {
     filter: brightness(0) blur(18px);
     opacity: 0.22;
@@ -329,7 +359,7 @@
   }
   .cscene-bubble {
     right: 2cqw;
-    top: 2cqh;
+    top: 5cqh;
     width: min(60cqw, 290px);
   }
   @media (min-width: 640px) {
@@ -340,8 +370,8 @@
   @media (min-width: 1024px) {
     .cscene-bubble {
       right: auto;
-      top: 3cqh;
-      left: calc(var(--edge) * 1cqw + var(--ph) * var(--ratio) * 0.34cqh);
+      top: 10cqh;
+      left: calc(var(--edge) * 1cqw + var(--ph) * var(--ratio) * 0.36cqh);
       width: clamp(240px, 22cqw, 300px);
     }
   }
