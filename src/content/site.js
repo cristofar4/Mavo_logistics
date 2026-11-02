@@ -61,15 +61,16 @@ export const images = {
   vehicleCargo: { name: 'vehicle-cargo', w: 744, h: 472, widths: [800], alt: 'White MOVA Logistics rigid cargo truck' },
   vehicleHeavy: { name: 'vehicle-heavy', w: 763, h: 467, widths: [800], alt: 'White heavy freight tractor unit with curtain side trailer' },
   /*
-   * Representative for the contract scene, in two layers so the hand can wave:
-   *   rep-body: the person with the pen hand removed (shirt restored behind it)
-   *   rep-hand: the pen hand on its own, positioned with `handBox` (percent of the body image)
-   * Both are cut from the same 1712 x 1480 source. The body's left edge is straight at
-   * `edgeRatio` of the image width; it lines up with the wall edge in the scene.
-   * Replace with your own transparent photo shoot assets using the same framing.
+   * Representative for the contract scene: real photographs of one person (Vitaly Gariev, Unsplash License),
+   * mirrored and cut out, in three layers on the same 1740 x 1350 canvas:
+   *   rep-wave:  waving pose without the forearm
+   *   rep-arm:   the waving forearm and hand on its own (swings from the elbow)
+   *   rep-smile: the same person with the arm lowered, aligned to the waving pose
+   * Replace with your own team photos using the same framing (see README).
    */
-  repBody: { name: 'rep-body', w: 1600, h: 1383, alt: 'Smiling MOVA Logistics representative holding an open contract folder' },
-  repHand: { name: 'rep-hand', w: 396, h: 377, alt: 'Representative offering a pen' },
+  repWave: { name: 'rep-wave', w: 1600, h: 1241, alt: 'MOVA Logistics representative smiling and waving hello' },
+  repSmile: { name: 'rep-smile', w: 1600, h: 1241, alt: 'MOVA Logistics representative smiling behind the counter' },
+  repArm: { name: 'rep-arm', w: 405, h: 621, alt: '' },
 }
 
 /*
@@ -78,9 +79,9 @@ export const images = {
  * of the representative to replace the still image. Keep the same framing.
  */
 export const representativeGeometry = {
-  edgeRatio: 0.1437, // straight body edge, as a fraction of image width
-  aspect: 1712 / 1480,
-  handBox: { left: 5.2, top: 56.69, width: 24.77, height: 27.23 }, // percent of the body image
+  aspect: 1740 / 1350, // canvas width / height of the representative layers
+  armBox: { left: 55.4, top: 25.19, width: 25.29, height: 50 }, // percent of the canvas
+  armPivot: '22.5% 106.7%', // the elbow, relative to the arm box
 }
 
 export const representativeVideo = {
@@ -92,7 +93,7 @@ export const hero = {
   label: 'Logistics that moves you forward',
   titleA: 'Moving business.',
   titleB: 'Connecting people.',
-  body: 'We move your goods by road, air and sea. Trucks for journeys across the region, aircraft when time is short and container ships for larger loads overseas. One team plans every step, from the first pickup to the final doorstep.',
+  body: 'Reliable road, air and sea freight, from the first mile to the final destination. One team plans every step.',
   link: 'Explore our services',
   side: 'People move possibilities',
 }

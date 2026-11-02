@@ -54,13 +54,9 @@ export default function Navbar() {
 
   return (
     <>
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,backdrop-filter] duration-500 ${
-        scrolled ? 'bg-ivory/95 shadow-[0_8px_30px_-18px_rgba(32,35,33,.35)] backdrop-blur-xl' : 'bg-ivory'
-      }`}
-    >
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
       <div
-        className={`overflow-hidden bg-charcoal transition-[max-height,opacity] duration-500 ${
+        className={`pointer-events-auto overflow-hidden bg-charcoal/90 backdrop-blur-md transition-[max-height,opacity] duration-500 ${
           scrolled ? 'max-h-0 opacity-0' : 'max-h-9 opacity-100'
         }`}
       >
@@ -69,14 +65,20 @@ export default function Navbar() {
           <span className="hidden text-ivory/50 sm:inline">People move possibilities</span>
         </p>
       </div>
-      <nav aria-label="Main" className={`site-x flex items-center justify-between gap-6 transition-[height] duration-500 ${scrolled ? 'h-16' : 'h-[4.5rem]'}`}>
+      {/* The nav is a card that stops short of the right edge, as in the design; the hero photo shows beside it */}
+      <div
+        className={`nav-card pointer-events-auto transition-[background-color,box-shadow] duration-500 lg:mr-[2.5vw] lg:rounded-br-[22px] ${
+          scrolled ? 'bg-ivory-soft/95 shadow-[0_10px_30px_-16px_rgba(32,35,33,.4)] backdrop-blur-xl' : 'bg-ivory-soft'
+        }`}
+      >
+      <nav aria-label="Main" className={`site-x flex items-center justify-between gap-6 transition-[height] duration-500 lg:pr-8 ${scrolled ? 'h-16' : 'h-[4.5rem]'}`}>
         <a href="#top" className="rounded-md" aria-label="MOVA Logistics, back to top">
           <Logo />
         </a>
 
         <ul className="hidden items-center gap-1 lg:flex">
           {nav.map((item) => {
-            const isActive = active === item.href.slice(1)
+            const isActive = scrolled && active === item.href.slice(1)
             return (
               <li key={item.href}>
                 <a href={item.href} className={`nav-link ${isActive ? 'is-active' : ''}`} aria-current={isActive ? 'true' : undefined}>
@@ -103,6 +105,7 @@ export default function Navbar() {
           </button>
         </div>
       </nav>
+      </div>
     </header>
 
       {/* Mobile menu (outside the header so backdrop blur does not trap its fixed positioning) */}
