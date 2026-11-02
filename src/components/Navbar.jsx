@@ -67,7 +67,7 @@ export default function Navbar() {
       </div>
       {/* The nav is a card that stops short of the right edge, as in the design; the hero photo shows beside it */}
       <div
-        className={`nav-card pointer-events-auto transition-[background-color,box-shadow] duration-500 lg:mr-[2.5vw] lg:rounded-br-[22px] ${
+        className={`nav-card pointer-events-auto transition-[background-color,box-shadow] duration-500 lg:mr-[max(4vw,calc(50vw-42rem))] lg:rounded-r-[24px] ${
           scrolled ? 'bg-ivory-soft/95 shadow-[0_10px_30px_-16px_rgba(32,35,33,.4)] backdrop-blur-xl' : 'bg-ivory-soft'
         }`}
       >

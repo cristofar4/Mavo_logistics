@@ -47,16 +47,18 @@ Both the **Get a quote** form and the **partnership contract book** go through `
 `src/components/ContractScene.jsx` and `src/components/ContractBook.jsx`
 
 1. When the visitor reaches the section (about half of it in view), a GSAP timeline plays once:
-   * the representative slides out from behind the ivory wall that carries the headline, already waving (1.1s)
-   * he waves (his real forearm swings from the elbow) while the cloud says **"Hi there!"**
-   * he lowers his arm (a cross fade to a real photo of him with the arm down) and places the contract book and pen on the counter in front of him
-   * the cloud changes to **"Ready to sign with us?"** (0.4s), then the action appears (0.5s)
+   * **Peek:** he leans out from behind the ivory wall with a slight tilt
+   * **Hello:** the cloud says **"Hi there!"** and he gives a small nod
+   * **Step out:** he straightens up and steps fully out
+   * **Wave:** his pen hand comes round the wall edge and waves at the visitor
+   * **Offer:** he holds the pen out and the cloud asks **"Ready to sign with us?"**, then the action appears
+   His hand always stays where his arm is in the photo, so it never floats free of him.
 2. The cloud offers **Yes, let’s go** and **Not yet**.
-3. **Yes** (or **Let’s work together**) makes the contract book fly up from the counter to the centre of the screen while the page behind blurs. The cover swings open to reveal a two page enquiry form with a signature pad (draw with mouse, pen or finger, or type your name).
+3. **Yes** (or **Let’s work together**) makes the contract book fly out of the contract he is holding to the centre of the screen while the page behind blurs. The cover swings open to reveal a two page enquiry form with a signature pad (draw with mouse, pen or finger, or type your name).
 4. **Sign** validates the form, closes the cover, flies the book back to the representative, removes the blur and the cloud says thank you. In demo mode the thank you message clearly says nothing was sent.
 5. Closing the book without signing returns the cloud to a friendly "No rush" message.
 
-Layers, back to front: blurred office backdrop, representative (clipped at the wall edge) with a cast shadow, the ivory wall panel, the front counter and contract, the cloud. The body is never faded over the wall; the wall edge physically hides him as he slides out. After the entrance only a very slow breathing movement remains. With `prefers-reduced-motion: reduce` the finished scene is shown immediately and the book opens without movement.
+Layers, back to front: blurred office backdrop, representative body (clipped at the wall edge) with a cast shadow, the ivory wall panel, the pen hand (its own layer so it can wave), the cloud. The body is never faded over the wall; the wall edge physically hides him as he slides out. After the entrance only a very slow breathing movement remains. With `prefers-reduced-motion: reduce` the finished scene is shown immediately and the book opens without movement.
 
 ## Editing content
 
@@ -71,7 +73,7 @@ Images are in `public/images` as WebP at 800 and 1600 pixels wide (`name-800.web
 | File | Source |
 | --- | --- |
 | `hero-port`, `road`, `air`, `sea` | Supplied by MOVA |
-| `rep-wave`, `rep-arm`, `rep-smile` | Real photographs of one person by Vitaly Gariev on Unsplash (waving: photo `1758600432307-2f5ea934be75`, arm down: photo `1758600432392-1b41c52a42b1`), mirrored, cut out and aligned. The waving forearm is its own layer so it can swing from the elbow |
+| `rep-body`, `rep-hand` | The MOVA representative from the supplied design, upscaled, cut out and split into a body layer and a pen hand layer (the shirt behind the hand was restored) |
 | `vehicle-van`, `vehicle-cargo`, `vehicle-heavy` | MOVA branded vehicles from the supplied design, upscaled and cut out |
 | `office` | Unsplash photo `1556761175-5973dc0f32e7`, blurred and warmed |
 | `world-relief` | Rendered from Natural Earth land data (public domain) |
@@ -88,7 +90,7 @@ Unsplash photos are used under the Unsplash License. View any of them at `https:
 
 These are needed before launch:
 
-1. **Your own representative photos.** The scene uses free stock photos of a real person. To show a MOVA team member instead, photograph them against a plain wall in the same framing: one photo waving with their right hand raised beside the head, and one with the arm down, both from the same camera position. Cut them out, export `rep-wave` (without the forearm), `rep-arm` (forearm and hand only) and `rep-smile`, then update `representativeGeometry` in `site.js` (`aspect`, `armBox`, `armPivot`).
+1. **Sharper representative photos.** The representative is cut from the low resolution design reference, so he is slightly soft on large screens, and the wave is made by moving the still pen hand. For a sharper result, photograph a MOVA team member in the same pose against a plain wall and supply two transparent images with the same framing: the body (pen hand removed, far body edge straight) and the pen hand on its own. Replace `rep-body-*` and `rep-hand-*`, then update `representativeGeometry` in `site.js` (`edgeRatio`, `aspect`, `handBox`, `wrist`).
 2. **Optional representative video.** For a truly realistic wave, supply a transparent video and set `representativeVideo.webm` (and `.mov` for Safari) in `site.js`. The scene will use it instead of the two still layers.
 3. **Form endpoint.** Set `VITE_FORM_ENDPOINT` (see above).
 4. **Contact details.** Email, phone, address, opening hours.

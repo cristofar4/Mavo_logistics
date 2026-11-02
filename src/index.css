@@ -212,11 +212,14 @@
       transform-origin: 50% 60%;
     }
   }
-  /* Rounds the photo corner where the nav card meets the slanted edge */
+  /* Rounds the photo corner where the nav card meets the slanted edge (positioned by Hero.jsx) */
   .hero-fillet {
-    width: 34px;
-    height: 34px;
-    background: radial-gradient(circle at 100% 100%, transparent 33px, #faf8f3 34px);
+    width: 32px;
+    height: 32px;
+    transform: skewX(-18deg);
+    transform-origin: 0 0;
+    background: radial-gradient(circle at 100% 100%, transparent 31.5px, #faf8f3 32px);
+    margin-left: -0.5px;
   }
   .hero-bracket {
     border-left: 2px solid #d96936;
@@ -277,30 +280,28 @@
   }
 
   /*
-   * Contract scene. The scene is a size container; the representative is sized in cqh and
-   * positioned so the wall edge (--edge, in cqw) covers a slice (--cut) of his far side.
+   * Contract scene. The scene is a size container; the representative is sized in cqh
+   * so his straight far edge (--cut of the image width) always lands on the wall edge (--edge, in cqw).
    */
   .cscene {
     container-type: size;
-    --edge: 13;
-    --ph: 60;
-    --counter: 16;
-    --ratio: 1.2889;
-    --cut: 0.1;
+    --edge: 18;
+    --ph: 70;
+    --pb: 3;
+    --ratio: 1.1568;
+    --cut: 0.1437;
   }
   @media (min-width: 640px) {
     .cscene {
-      --edge: 20;
-      --ph: 72;
-      --counter: 17;
+      --edge: 24;
+      --ph: 80;
     }
   }
   @media (min-width: 1024px) {
     .cscene {
-      --edge: 40;
-      --ph: 80;
-      --counter: 18;
-      --cut: 0.12;
+      --edge: 44;
+      --ph: 88;
+      --pb: 4;
     }
   }
   .cscene-panel {
@@ -309,60 +310,39 @@
     box-shadow:
       1px 0 0 rgba(32, 35, 33, 0.06),
       22px 0 34px -16px rgba(32, 35, 33, 0.45);
-    z-index: 2;
   }
   .cscene-clip {
-    clip-path: inset(-20% -20% -20% calc(var(--edge) * 1cqw));
+    clip-path: inset(-30% -20% -20% calc(var(--edge) * 1cqw));
   }
   .cscene-person {
     --pw: calc(var(--ph) * var(--ratio) * 1cqh);
     height: calc(var(--ph) * 1cqh);
     width: var(--pw);
     left: calc(var(--edge) * 1cqw - var(--pw) * var(--cut));
-    bottom: calc(var(--counter) * 0.35cqh);
+    bottom: calc(var(--pb) * -1cqh);
+    transform-origin: 14% 100%;
   }
   .cscene-cast {
     filter: brightness(0) blur(18px);
-    opacity: 0.2;
+    opacity: 0.22;
     transform: translate(5%, 2%);
   }
-  .cscene-counter {
-    left: calc(var(--edge) * 1cqw);
-    height: calc(var(--counter) * 1cqh);
-    background: linear-gradient(180deg, #f3efe6 0%, #ebe6db 60%, #e2dccf 100%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    z-index: 3;
-  }
-  .cscene-counter-top {
-    height: 12px;
-    background: linear-gradient(180deg, #fdfcf8, #f2eee5);
-    box-shadow: 0 7px 12px -6px rgba(32, 35, 33, 0.35);
-  }
-  .cscene-book {
-    --bw: calc(var(--ph) * var(--ratio) * 0.34cqh);
-    width: var(--bw);
-    aspect-ratio: 1.55;
-    font-size: calc(var(--bw) / 9);
-    left: calc(var(--edge) * 1cqw - var(--ph) * var(--ratio) * var(--cut) * 1cqh + var(--ph) * var(--ratio) * 0.46cqh);
-    bottom: calc((var(--counter) - 4) * 1cqh);
-    z-index: 4;
-  }
   .cscene-bubble {
-    right: 3cqw;
-    top: 3cqh;
-    width: min(60cqw, 300px);
+    right: 2cqw;
+    top: 2cqh;
+    width: min(60cqw, 290px);
   }
   @media (min-width: 640px) {
     .cscene-bubble {
-      width: min(42cqw, 300px);
+      width: min(44cqw, 300px);
     }
   }
   @media (min-width: 1024px) {
     .cscene-bubble {
       right: auto;
-      top: 9cqh;
-      left: calc(var(--edge) * 1cqw - var(--ph) * var(--ratio) * var(--cut) * 1cqh + var(--ph) * var(--ratio) * 0.53cqh);
-      width: clamp(250px, 22cqw, 300px);
+      top: 3cqh;
+      left: calc(var(--edge) * 1cqw + var(--ph) * var(--ratio) * 0.34cqh);
+      width: clamp(240px, 22cqw, 300px);
     }
   }
   .cloud-bubble {

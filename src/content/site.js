@@ -61,16 +61,16 @@ export const images = {
   vehicleCargo: { name: 'vehicle-cargo', w: 744, h: 472, widths: [800], alt: 'White MOVA Logistics rigid cargo truck' },
   vehicleHeavy: { name: 'vehicle-heavy', w: 763, h: 467, widths: [800], alt: 'White heavy freight tractor unit with curtain side trailer' },
   /*
-   * Representative for the contract scene: real photographs of one person (Vitaly Gariev, Unsplash License),
-   * mirrored and cut out, in three layers on the same 1740 x 1350 canvas:
-   *   rep-wave:  waving pose without the forearm
-   *   rep-arm:   the waving forearm and hand on its own (swings from the elbow)
-   *   rep-smile: the same person with the arm lowered, aligned to the waving pose
-   * Replace with your own team photos using the same framing (see README).
+   * Representative for the contract scene (the MOVA team member from the design reference),
+   * in two layers so the pen hand can move on its own:
+   *   rep-body: the person with the pen hand removed (shirt restored behind it)
+   *   rep-hand: the pen hand on its own, positioned with `handBox` (percent of the body image)
+   * Both come from the same 1712 x 1480 image. The body's far edge is straight at `edgeRatio`
+   * of the image width and lines up with the wall edge in the scene.
+   * Replace with your own transparent photo shoot assets using the same framing (see README).
    */
-  repWave: { name: 'rep-wave', w: 1600, h: 1241, alt: 'MOVA Logistics representative smiling and waving hello' },
-  repSmile: { name: 'rep-smile', w: 1600, h: 1241, alt: 'MOVA Logistics representative smiling behind the counter' },
-  repArm: { name: 'rep-arm', w: 405, h: 621, alt: '' },
+  repBody: { name: 'rep-body', w: 1600, h: 1383, alt: 'Smiling MOVA Logistics representative holding an open contract and offering a pen' },
+  repHand: { name: 'rep-hand', w: 396, h: 377, alt: '' },
 }
 
 /*
@@ -79,9 +79,10 @@ export const images = {
  * of the representative to replace the still image. Keep the same framing.
  */
 export const representativeGeometry = {
-  aspect: 1740 / 1350, // canvas width / height of the representative layers
-  armBox: { left: 55.4, top: 25.19, width: 25.29, height: 50 }, // percent of the canvas
-  armPivot: '22.5% 106.7%', // the elbow, relative to the arm box
+  edgeRatio: 0.1437, // straight body edge, as a fraction of image width
+  aspect: 1712 / 1480,
+  handBox: { left: 5.2, top: 56.69, width: 24.77, height: 27.23 }, // percent of the body image
+  wrist: '74% 80%', // pivot for the hand, relative to the hand box
 }
 
 export const representativeVideo = {
