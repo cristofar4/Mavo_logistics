@@ -30,7 +30,7 @@ Both the **Get a quote** form and the **partnership contract book** go through `
 
 | Section | Notes |
 | --- | --- |
-| Navigation | **Route navigation.** Each section is a numbered stop on a road in page order: 01 Services, 02 Industries, 03 Our fleet, 04 About (the partnership section), 05 Contact. A small MOVA truck drives along the road as you scroll, turns round when you scroll back up, and the road behind it lights up orange. Tapping a stop scrolls to that section and moves keyboard focus there. On phones the menu button has a scroll progress ring and opens a vertical route map with "You are here" |
+| Navigation | **Glass dock.** One frosted dock holds the logo, the section links in page order (Services, Industries, Our fleet, About, Contact) and the quote button. It turns to dark glass over dark sections, and shrinks into a floating bar after the hero. A tab marks the section in view and a soft glow follows the pointer. Hovering or focusing Services previews the four services with photos; clicking the link scrolls to the section. A rail along the bottom edge fills as you scroll, with a mark under each section and a small truck that turns round when scrolling back up. On phones the dock shows the section being read and the menu opens a vertical route map with "You are here" |
 | Hero | "Moving business. *Connecting* people." with the port truck in a slanted panel that bleeds off the right edge, "ROAD. AIR. SEA." and a choreographed entrance |
 | Values strip | Careful handling, Clear communication, Connected journeys |
 | Services | 01 Road freight, 02 Air freight, 03 Warehousing, 04 Sea freight in the design's mosaic. Hover, focus or touch reveals "View details"; each card opens a service panel with a quote shortcut |

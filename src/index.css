@@ -128,46 +128,304 @@
     @apply inline-flex h-11 w-11 items-center justify-center rounded-lg text-charcoal transition-colors duration-300 hover:bg-charcoal/5 hover:text-orange;
   }
 
-  /* Logo badge: the depot the route starts from */
-  .brand-card {
-    @apply relative flex h-[52px] items-center rounded-[18px] px-5 transition-[transform,box-shadow] duration-300 ease-out lg:h-[64px] lg:rounded-[24px] lg:px-8;
-    background: linear-gradient(180deg, #ffffff 0%, #fbf8f2 100%);
-    box-shadow:
-      0 0 0 1px rgba(27, 33, 33, 0.06),
-      0 1px 2px rgba(27, 33, 33, 0.06),
-      0 16px 30px -18px rgba(27, 33, 33, 0.5),
-      inset 0 1px 0 #fff;
+  /*
+   * Dock navigation: a frosted glass dock with the logo, the section links in page order, the quote
+   * button and a route rail along the bottom edge. Light glass over light sections, dark glass over
+   * dark ones, and it shrinks into a floating bar after the hero.
+   */
+  .dock-header {
+    padding-top: 10px;
   }
-  .brand-card:hover {
-    transform: translateY(-1px);
+  .dock {
+    @apply relative mx-auto flex items-center gap-2 p-[6px] text-charcoal;
+    --tab-bg: #1b2121;
+    --tab-fg: #fff;
+    --glow: rgba(27, 33, 33, 0.06);
+    --rail: rgba(27, 33, 33, 0.1);
+    --tick: rgba(27, 33, 33, 0.28);
+    height: 62px;
+    max-width: 100%;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.66);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.1));
     box-shadow:
-      0 0 0 1px rgba(27, 33, 33, 0.08),
-      0 2px 4px rgba(27, 33, 33, 0.06),
-      0 20px 36px -18px rgba(27, 33, 33, 0.55),
-      inset 0 1px 0 #fff;
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 0 0 1px rgba(27, 33, 33, 0.07),
+      0 18px 40px -22px rgba(27, 33, 33, 0.35);
+    backdrop-filter: blur(20px) saturate(1.7);
+    -webkit-backdrop-filter: blur(20px) saturate(1.7);
+    transition:
+      max-width 650ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-radius 450ms ease,
+      background-color 500ms ease,
+      box-shadow 500ms ease,
+      color 500ms ease;
+  }
+  .dock.on-dark {
+    @apply text-white;
+    --tab-bg: #fff;
+    --tab-fg: #1b2121;
+    --glow: rgba(255, 255, 255, 0.1);
+    --rail: rgba(255, 255, 255, 0.12);
+    --tick: rgba(255, 255, 255, 0.32);
+    background-color: rgba(27, 33, 33, 0.72);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.1),
+      0 18px 40px -22px rgba(0, 0, 0, 0.7);
+  }
+  @media (min-width: 1024px) {
+    .dock {
+      height: 72px;
+      gap: 10px;
+      padding: 7px;
+      border-radius: 24px;
+    }
+    .dock.is-compact {
+      max-width: 1010px;
+      height: 62px;
+      border-radius: 20px;
+    }
   }
 
-  /* Get a quote: the destination at the end of the route */
+  /* Logo, straight on the glass */
+  .dock-logo {
+    @apply flex h-full shrink-0 items-center rounded-[14px] px-3 outline-none transition-transform duration-500 ease-out lg:rounded-[17px] lg:px-5;
+  }
+  .dock-logo:hover {
+    transform: translateY(-1px);
+  }
+  .dock-logo:focus-visible {
+    box-shadow: inset 0 0 0 2px #ea6a1f;
+  }
+
+  /* Links with an active tab and a pointer glow */
+  .dock-link {
+    @apply relative z-10 inline-flex items-center gap-1.5 whitespace-nowrap rounded-[14px] px-4 font-extrabold outline-none transition-colors duration-300 xl:px-5;
+    height: 46px;
+    font-size: 0.98rem;
+    color: currentColor;
+    opacity: 1;
+  }
+  .dock-link:not(.is-active) {
+    color: color-mix(in srgb, currentColor 72%, transparent);
+  }
+  .dock .dock-link:not(.is-active):hover {
+    color: inherit;
+  }
+  @media (min-width: 1280px) {
+    .dock-link {
+      font-size: 1.04rem;
+    }
+  }
+  .dock-link.is-active {
+    color: var(--tab-fg);
+  }
+  .dock-link:focus-visible {
+    box-shadow: inset 0 0 0 2px #ea6a1f;
+  }
+  .dock.is-compact .dock-link {
+    height: 40px;
+  }
+  .dock-tab,
+  .dock-glow {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 46px;
+    margin-top: -23px;
+    border-radius: 14px;
+    transition:
+      transform 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 450ms ease,
+      margin 450ms ease,
+      opacity 300ms ease,
+      background-color 500ms ease;
+  }
+  .dock.is-compact .dock-tab,
+  .dock.is-compact .dock-glow {
+    height: 40px;
+    margin-top: -20px;
+  }
+  .dock-tab {
+    background: var(--tab-bg);
+    box-shadow:
+      inset 0 -2px 0 #ea6a1f,
+      0 8px 18px -10px rgba(0, 0, 0, 0.55);
+  }
+  .dock-glow {
+    background: var(--glow);
+    opacity: 0;
+  }
+  .dock-glow.is-on {
+    opacity: 1;
+  }
+
+  /* Services preview */
+  .dock-preview {
+    position: absolute;
+    left: -16px;
+    top: calc(100% + 18px);
+    width: 690px;
+    padding: 12px;
+    border-radius: 20px;
+    color: #1b2121;
+    background: #fff;
+    box-shadow:
+      0 30px 60px -24px rgba(27, 33, 33, 0.5),
+      0 0 0 1px rgba(27, 33, 33, 0.05);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.98);
+    transform-origin: 40px 0;
+    transition:
+      opacity 280ms ease,
+      transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 380ms;
+  }
+  .dock-preview::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 54px;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    transform: rotate(45deg);
+    border-radius: 3px;
+  }
+  .dock-preview::after {
+    content: '';
+    position: absolute;
+    inset: -20px 0 auto 0;
+    height: 20px;
+  }
+  .dock-preview.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 280ms ease,
+      transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s;
+  }
+  .dock-preview-item {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 350ms ease,
+      transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .dock-preview.is-open .dock-preview-item {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Section readout and menu button (phones and tablets) */
+  .dock-readout {
+    @apply flex h-full min-w-0 flex-1 items-center justify-center overflow-hidden rounded-[14px] px-2 text-[0.95rem] font-extrabold outline-none;
+  }
+  .dock-readout:focus-visible {
+    box-shadow: inset 0 0 0 2px #ea6a1f;
+  }
+  .dock-readout-text {
+    @apply truncate;
+    animation: readoutIn 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .dock-menu {
+    @apply relative flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-[14px] outline-none transition-colors duration-500;
+    background: var(--tab-bg);
+    color: var(--tab-fg);
+  }
+  .dock-menu:focus-visible {
+    box-shadow: 0 0 0 2px #ea6a1f;
+  }
+
+  /* Route rail along the bottom edge of the dock */
+  .dock-rail {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 3px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--rail);
+    pointer-events: none;
+    transition: background-color 500ms ease;
+  }
+  .dock-rail-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, rgba(234, 106, 31, 0.3), #ea6a1f);
+    box-shadow: 0 0 8px rgba(234, 106, 31, 0.7);
+  }
+  .dock-tick {
+    position: absolute;
+    top: -2px;
+    width: 2px;
+    height: 6px;
+    margin-left: -1px;
+    border-radius: 1px;
+    background: var(--tick);
+    transition: background-color 300ms ease;
+  }
+  .dock-tick.is-reached {
+    background: #ea6a1f;
+  }
+  .dock-truck {
+    position: absolute;
+    left: 0;
+    bottom: 1px;
+    width: 18px;
+    color: #1b2121;
+    transform: translateX(-50%);
+    will-change: transform;
+    filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.35));
+    transition: color 500ms ease;
+  }
+  .dock.on-dark .dock-truck {
+    color: #fff;
+  }
+  @media (max-width: 1023px) {
+    .dock-tick,
+    .dock-truck {
+      display: none;
+    }
+  }
+
+  /* Get a quote, inside the dock */
   .quote-pill {
-    @apply relative h-[56px] items-center gap-3.5 rounded-full pl-6 pr-1.5 text-[1rem] font-extrabold text-white lg:h-[64px] lg:gap-4 lg:pl-8 lg:pr-2 lg:text-[1.08rem];
+    @apply relative h-full shrink-0 items-center gap-3 rounded-[14px] pl-5 pr-[5px] text-[0.98rem] font-extrabold text-white outline-none lg:gap-4 lg:rounded-[17px] lg:pl-6 lg:text-[1.04rem];
     background: linear-gradient(135deg, #f38b45 0%, #ea6a1f 48%, #d2560f 100%);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.35),
-      inset 0 -2px 0 rgba(0, 0, 0, 0.08),
-      0 14px 28px -14px rgba(234, 106, 31, 0.95);
+      inset 0 -2px 0 rgba(0, 0, 0, 0.1),
+      0 10px 22px -12px rgba(234, 106, 31, 0.95);
     transition:
       transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 300ms ease;
   }
   .quote-pill:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      inset 0 -2px 0 rgba(0, 0, 0, 0.08),
-      0 20px 34px -14px rgba(234, 106, 31, 1);
+      inset 0 -2px 0 rgba(0, 0, 0, 0.1),
+      0 16px 28px -12px rgba(234, 106, 31, 1);
   }
   .quote-pill:active {
-    transform: translateY(0) scale(0.98);
+    transform: scale(0.98);
+  }
+  .quote-pill:focus-visible {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 0 0 3px #fff;
   }
   .quote-sheen {
     position: absolute;
@@ -190,9 +448,13 @@
     left: 125%;
   }
   .quote-chip {
-    @apply relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-charcoal lg:h-[50px] lg:w-[50px];
+    @apply relative flex aspect-square h-full shrink-0 items-center justify-center overflow-hidden rounded-[11px] bg-white text-charcoal lg:rounded-[13px];
+    max-height: calc(100% - 0px);
     box-shadow: 0 4px 12px -4px rgba(120, 40, 0, 0.55);
     transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .quote-pill .quote-chip {
+    height: calc(100% - 10px);
   }
   .quote-arrow {
     position: absolute;
@@ -211,183 +473,7 @@
     transform: translate(0, 0);
   }
   .quote-pill:hover .quote-chip {
-    transform: scale(1.06);
-  }
-
-  /* Depot and destination: the road leaves the logo and ends at the quote button */
-  .depot-link,
-  .depot-node,
-  .dest-link,
-  .dest-node {
-    display: none;
-  }
-  @media (min-width: 1024px) {
-    .depot-link,
-    .dest-link {
-      display: block;
-      position: absolute;
-      bottom: 14px;
-      width: 16px;
-      height: 2px;
-      pointer-events: none;
-    }
-    .depot-link {
-      left: 100%;
-      background: repeating-linear-gradient(90deg, #ea6a1f 0 5px, transparent 5px 8px);
-    }
-    .dest-link {
-      right: 100%;
-      background: repeating-linear-gradient(90deg, rgba(27, 33, 33, 0.35) 0 5px, transparent 5px 8px);
-      transition: background 300ms ease;
-    }
-    .depot-node,
-    .dest-node {
-      display: block;
-      position: absolute;
-      bottom: 9px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 1;
-    }
-    .depot-node {
-      right: -6px;
-      background: #ea6a1f;
-      box-shadow:
-        0 0 0 3px #fff,
-        0 2px 8px rgba(234, 106, 31, 0.7);
-    }
-    .dest-node {
-      left: -6px;
-      background: #fff;
-      box-shadow: 0 0 0 3px #1b2121;
-      transition:
-        background-color 300ms ease,
-        box-shadow 300ms ease;
-    }
-    .quote-pill.is-arrived .dest-link {
-      background: repeating-linear-gradient(90deg, #ea6a1f 0 5px, transparent 5px 8px);
-    }
-    .quote-pill.is-arrived .dest-node {
-      box-shadow:
-        0 0 0 3px #fff,
-        0 0 0 5px #ea6a1f;
-    }
-    .quote-pill.is-arrived .dest-node::after {
-      content: '';
-      position: absolute;
-      inset: -8px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.85);
-      animation: routePulse 1.8s ease-out infinite;
-    }
-  }
-
-  /* Route navigation: stops on a road with a truck that follows the scroll */
-  .route-bar {
-    border-radius: 24px;
-    background:
-      radial-gradient(120% 140% at 0% 0%, rgba(255, 255, 255, 0.06), transparent 55%),
-      #1b2121;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.07),
-      0 18px 34px -22px rgba(0, 0, 0, 0.65);
-  }
-  .route-stop {
-    @apply relative flex h-full flex-col items-center rounded-xl px-2 pt-[11px] outline-none;
-  }
-  .route-stop:focus-visible {
-    box-shadow: inset 0 0 0 2px #ea6a1f;
-  }
-  .route-label {
-    @apply flex items-baseline gap-1.5 whitespace-nowrap text-[0.95rem] font-extrabold tracking-tight transition-colors duration-300 xl:text-[1.05rem];
-    color: rgba(255, 255, 255, 0.58);
-  }
-  .route-no {
-    @apply hidden xl:inline;
-    font-family: 'DM Serif Display', Georgia, serif;
-    font-style: italic;
-    font-weight: 400;
-    color: #ea6a1f;
-    font-size: 0.95em;
-  }
-  .route-stop.is-passed .route-label {
-    color: rgba(255, 255, 255, 0.82);
-  }
-  .route-stop.is-active .route-label,
-  .route-stop:hover .route-label {
-    color: #fff;
-  }
-  .route-node {
-    position: absolute;
-    left: 50%;
-    bottom: 10px;
-    width: 10px;
-    height: 10px;
-    margin-left: -5px;
-    border-radius: 50%;
-    background: #1b2121;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
-    transition:
-      background-color 300ms ease,
-      box-shadow 300ms ease,
-      scale 300ms cubic-bezier(0.22, 1, 0.36, 1);
-    z-index: 1;
-  }
-  .route-stop.is-passed .route-node,
-  .route-stop.is-active .route-node {
-    background: #ea6a1f;
-    box-shadow: 0 0 0 2px #ea6a1f;
-  }
-  .route-stop.is-active .route-node::after {
-    content: '';
-    position: absolute;
-    inset: -7px;
-    border-radius: 50%;
-    border: 2px solid rgba(234, 106, 31, 0.7);
-    animation: routePulse 1.8s ease-out infinite;
-  }
-  .route-stop:hover .route-node {
-    scale: 1.35;
-  }
-  .route-track {
-    position: absolute;
-    left: 1.75rem;
-    right: 1.75rem;
-    bottom: 14px;
-    height: 2px;
-    border-radius: 2px;
-    background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.28) 0 8px, transparent 8px 14px);
-  }
-  @media (min-width: 1280px) {
-    .route-track {
-      left: 2.25rem;
-      right: 2.25rem;
-    }
-  }
-  .route-fill {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 0;
-    border-radius: 2px;
-    background: linear-gradient(90deg, rgba(234, 106, 31, 0.35), #ea6a1f);
-    box-shadow: 0 0 10px rgba(234, 106, 31, 0.8);
-  }
-  .route-truck {
-    position: absolute;
-    left: 0;
-    bottom: 1px;
-    width: 28px;
-    z-index: 20;
-    transform: translateX(-50%);
-    will-change: transform;
-    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
-  }
-  [tabindex='-1']:focus {
-    outline: none;
+    transform: rotate(-6deg) scale(1.04);
   }
 
   /* Forms */
@@ -760,6 +846,16 @@
     }
     to {
       transform: scale(1);
+    }
+  }
+  @keyframes readoutIn {
+    from {
+      transform: translateY(70%);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
     }
   }
   @keyframes routePulse {

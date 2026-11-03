@@ -23,7 +23,7 @@ export default function Industries() {
   )
 
   return (
-    <section id="industries" ref={root} className="relative overflow-hidden bg-charcoal py-12 text-white sm:py-14 lg:py-16" aria-labelledby="industries-title">
+    <section id="industries" data-nav-dark ref={root} className="relative overflow-hidden bg-charcoal py-12 text-white sm:py-14 lg:py-16" aria-labelledby="industries-title">
       <div className="site-x">
         <div className="mb-8 flex items-end gap-8">
           <div data-head>

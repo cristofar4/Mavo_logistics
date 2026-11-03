@@ -22,7 +22,7 @@ export default function ValuesStrip() {
   )
 
   return (
-    <section id="values" ref={root} className="relative bg-charcoal text-white" aria-label="How MOVA works">
+    <section id="values" data-nav-dark ref={root} className="relative bg-charcoal text-white" aria-label="How MOVA works">
       <ul className="site-x flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-center sm:gap-0 sm:py-5">
         {values.map((v, i) => {
           const Icon = ICONS[v.id]

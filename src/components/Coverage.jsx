@@ -87,7 +87,7 @@ export default function Coverage() {
   )
 
   return (
-    <section id="coverage" ref={root} className="relative overflow-hidden bg-charcoal text-white" aria-labelledby="coverage-title">
+    <section id="coverage" data-nav-dark ref={root} className="relative overflow-hidden bg-charcoal text-white" aria-labelledby="coverage-title">
       <div className="site-x grid items-center gap-8 py-8 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:py-6">
         <figure className="relative">
           <div data-map-img>

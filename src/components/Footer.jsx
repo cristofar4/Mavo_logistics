@@ -18,7 +18,7 @@ export default function Footer() {
   const links = socials.filter((s) => s.url)
 
   return (
-    <footer className="relative overflow-hidden bg-charcoal text-white" aria-labelledby="footer-title">
+    <footer data-nav-dark className="relative overflow-hidden bg-charcoal text-white" aria-labelledby="footer-title">
       <h2 id="footer-title" className="sr-only">
         Site footer
       </h2>

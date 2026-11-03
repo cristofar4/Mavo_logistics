@@ -25,7 +25,7 @@ export default function Logo({ tone = 'dark', size = 'md', className = '' }) {
   const text = tone === 'light' ? 'text-white' : 'text-charcoal'
   const big = size === 'lg'
   return (
-    <span className={`inline-flex flex-col items-center leading-none ${text} ${className}`}>
+    <span className={`inline-flex flex-col items-center leading-none transition-colors duration-500 ${text} ${className}`}>
       <span className={`flex items-end font-extrabold tracking-[0.01em] ${big ? 'text-[2.6rem]' : 'text-[1.55rem] sm:text-[1.7rem]'}`}>
         MOV
         <LogoA className={`${big ? 'mb-[0.16em] ml-[0.04em] h-[0.72em]' : 'mb-[0.15em] ml-[0.03em] h-[0.72em]'} w-auto`} />
