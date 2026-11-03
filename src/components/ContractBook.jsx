@@ -8,19 +8,25 @@ import { isDemoMode } from '../lib/submitEnquiry'
 import EnquiryFields from './EnquiryFields'
 import DemoNotice from './DemoNotice'
 import SignaturePad from './SignaturePad'
-import { LogoMark } from './Logo'
+import { LogoA, LogoMark } from './Logo'
 import { ArrowRight, Close, Pen } from './Icons'
 
 const ID = 'partner'
 
 /*
- * The partnership "contract book".
- * Opens from the representative's folder (originRef), flies to the centre of a blurred page,
- * opens its cover, collects an enquiry with a signature, then closes and flies back.
- * onFinished(result) is called after the closing animation: 'sent' | 'demo' | null (cancelled).
+ * The partnership contract book.
+ *
+ * Opening:  the page blurs, the book flies out of the contract the representative is holding,
+ *           the foil lettering shimmers, the cover swings open, a ribbon bookmark drops and a
+ *           page turns before the fields write themselves in.
+ * Signing:  the form is validated; on success an orange MOVA seal stamps onto the signature,
+ *           the book closes, flies back to him and the blur lifts.
+ * onFinished(result) runs after the closing animation: 'sent' | 'demo' | null (cancelled).
+ * It is an enquiry, not a contract, and the pages say so.
  */
 export default function ContractBook({ open, originRef, onFinished }) {
   const [mounted, setMounted] = useState(false)
+  const [sealed, setSealed] = useState(false)
   const overlay = useRef(null)
   const book = useRef(null)
   const cover = useRef(null)
@@ -50,7 +56,7 @@ export default function ContractBook({ open, originRef, onFinished }) {
   useScrollLock(mounted)
   useFocusTrap(dialogRef, mounted, { onEscape: () => close(null) })
 
-  /* Geometry: where the cover must start so that it sits exactly on the representative's folder. */
+  /* Where the closed book must start so that it sits exactly on the contract in his hands. */
   const fromOrigin = () => {
     const o = originRef?.current?.getBoundingClientRect()
     const b = book.current.getBoundingClientRect()
@@ -67,13 +73,15 @@ export default function ContractBook({ open, originRef, onFinished }) {
   useEffect(() => {
     if (!mounted || !open) return
     const desktop = window.matchMedia('(min-width: 768px)').matches
-    const fields = book.current.querySelectorAll('[data-page-item]')
+    const q = gsap.utils.selector(book.current)
+    const fields = q('[data-page-item]')
     busy.current = true
+    setSealed(false)
 
     if (prefersReducedMotion()) {
       gsap.set(overlay.current, { autoAlpha: 1 })
-      gsap.set(cover.current, { autoAlpha: 0 })
-      gsap.set([left.current, right.current, book.current], { autoAlpha: 1 })
+      gsap.set([cover.current, q('[data-leaf]')], { autoAlpha: 0 })
+      gsap.set([left.current, right.current, book.current, q('[data-board-left]')], { autoAlpha: 1 })
       busy.current = false
       document.getElementById(`${ID}-name`)?.focus({ preventScroll: true })
       return
@@ -88,22 +96,39 @@ export default function ContractBook({ open, originRef, onFinished }) {
     })
     gsap.set(cover.current, { rotationY: 0, autoAlpha: 1, transformPerspective: 2400 })
     gsap.set(left.current, { autoAlpha: desktop ? 0 : 1 })
-    gsap.set('[data-board-left]', { autoAlpha: 0 })
+    gsap.set(q('[data-board-left]'), { autoAlpha: 0 })
     gsap.set(right.current, { autoAlpha: 1 })
+    gsap.set(q('[data-leaf]'), { rotationY: 0, autoAlpha: 0, transformPerspective: 2400 })
+    gsap.set(q('[data-ribbon]'), { scaleY: 0 })
+    gsap.set(q('[data-foil-sweep]'), { xPercent: -120 })
     gsap.set(fields, { autoAlpha: 0, y: 12 })
+
     tl.fromTo(overlay.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: 'power2.out' }, 0)
       .fromTo(
         book.current,
-        { x: start.x, y: start.y, scale: start.scale, rotation: -7, autoAlpha: 0.2 },
-        { x: 0, y: 0, scale: 1, rotation: 0, autoAlpha: 1, duration: 0.85, ease: 'power3.inOut' },
+        { x: start.x, y: start.y, scale: start.scale, rotation: -8, rotationX: 18, autoAlpha: 0.2 },
+        { x: 0, y: 0, scale: 1, rotation: 0, rotationX: 0, autoAlpha: 1, duration: 0.9, ease: 'power3.inOut' },
         0.05,
       )
-      .to(cover.current, { rotationY: -180, duration: 1, ease: 'power2.inOut' }, '+=0.05')
-      .to('[data-board-left]', { autoAlpha: 1, duration: 0.35, ease: 'power1.out' }, '<0.45')
-      .to('[data-cover-shade]', { opacity: 0.35, duration: 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' }, '<')
-    if (desktop) tl.set(left.current, { autoAlpha: 1 }, '-=0.02').set(cover.current, { autoAlpha: 0 })
-    else tl.to(cover.current, { autoAlpha: 0, duration: 0.3 }, '-=0.35')
-    tl.to(fields, { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.035, ease: 'power2.out' }, '-=0.1')
+      // Foil shimmer across the cover lettering
+      .to(q('[data-foil-sweep]'), { xPercent: 220, duration: 0.8, ease: 'power2.inOut' }, 0.75)
+      // Cover swings open
+      .to(cover.current, { rotationY: -180, duration: 1.05, ease: 'power2.inOut' }, 1.15)
+      .to(q('[data-cover-shade]'), { opacity: 0.4, duration: 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' }, '<')
+      .to(q('[data-board-left]'), { autoAlpha: 1, duration: 0.35, ease: 'power1.out' }, '<0.45')
+    if (desktop) {
+      tl.set(left.current, { autoAlpha: 1 }, '>-0.02')
+        .set(cover.current, { autoAlpha: 0 })
+        // A page turns over
+        .set(q('[data-leaf]'), { autoAlpha: 1 }, '<')
+        .to(q('[data-leaf]'), { rotationY: -180, duration: 0.75, ease: 'power2.inOut' }, '<')
+        .to(q('[data-leaf-shade]'), { opacity: 0.25, duration: 0.35, yoyo: true, repeat: 1 }, '<')
+        .set(q('[data-leaf]'), { autoAlpha: 0 })
+    } else {
+      tl.to(cover.current, { autoAlpha: 0, duration: 0.3 }, '-=0.35')
+    }
+    tl.to(q('[data-ribbon]'), { scaleY: 1, duration: 0.6, ease: 'back.out(1.6)' }, desktop ? '-=0.5' : '-=0.2')
+      .to(fields, { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.035, ease: 'power2.out' }, '-=0.35')
 
     return () => tl.kill()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,6 +142,7 @@ export default function ContractBook({ open, originRef, onFinished }) {
       const done = () => {
         busy.current = false
         setMounted(false)
+        setSealed(false)
         form.reset()
         setTypedSig('')
         setConsent(false)
@@ -128,23 +154,41 @@ export default function ContractBook({ open, originRef, onFinished }) {
         return
       }
       const desktop = window.matchMedia('(min-width: 768px)').matches
-      const fields = book.current.querySelectorAll('[data-page-item]')
+      const q = gsap.utils.selector(book.current)
       const tl = gsap.timeline({ onComplete: done })
-      tl.to(fields, { autoAlpha: 0, y: -8, duration: 0.25, stagger: 0.01 })
-      tl.set(cover.current, { autoAlpha: 1 })
+      tl.to(q('[data-ribbon]'), { scaleY: 0, duration: 0.3, ease: 'power2.in' })
+        .to(q('[data-page-item]'), { autoAlpha: 0, y: -8, duration: 0.25, stagger: 0.01 }, '<')
+        .set(cover.current, { autoAlpha: 1 })
       if (desktop) tl.set(left.current, { autoAlpha: 0 })
       tl.to(cover.current, { rotationY: 0, duration: 0.85, ease: 'power2.inOut' })
-      tl.to('[data-board-left]', { autoAlpha: 0, duration: 0.3 }, '<0.3')
-      tl.add(() => {
-        const t = fromOrigin()
-        gsap.to(book.current, { x: t.x, y: t.y, scale: t.scale, rotation: -5, duration: 0.8, ease: 'power3.inOut' })
-        gsap.to(book.current, { autoAlpha: 0, duration: 0.3, delay: 0.55 })
-      }, '+=0.1')
-      tl.to(overlay.current, { autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, '+=0.45')
+        .to(q('[data-board-left]'), { autoAlpha: 0, duration: 0.3 }, '<0.3')
+        .add(() => {
+          const t = fromOrigin()
+          gsap.to(book.current, { x: t.x, y: t.y, scale: t.scale, rotation: -6, rotationX: 16, duration: 0.85, ease: 'power3.inOut' })
+          gsap.to(book.current, { autoAlpha: 0, duration: 0.3, delay: 0.6 })
+        }, '+=0.1')
+        .to(overlay.current, { autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, '+=0.5')
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [form, onFinished],
   )
+
+  /* The seal stamps onto the signature before the book closes. */
+  const stamp = () =>
+    new Promise((resolve) => {
+      setSealed(true)
+      if (prefersReducedMotion()) return setTimeout(resolve, 600)
+      requestAnimationFrame(() => {
+        const q = gsap.utils.selector(book.current)
+        const seal = q('[data-seal]')
+        q('[data-seal-anchor]')[0]?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        gsap
+          .timeline({ onComplete: () => setTimeout(resolve, 650), delay: 0.25 })
+          .fromTo(seal, { scale: 2.6, rotation: -35, autoAlpha: 0, y: -40 }, { scale: 1, rotation: -12, autoAlpha: 1, y: 0, duration: 0.42, ease: 'power4.in' })
+          .fromTo(book.current, { x: 0 }, { x: 4, duration: 0.05, repeat: 3, yoyo: true, ease: 'none' })
+          .fromTo(q('[data-seal-ring]'), { scale: 0.8, autoAlpha: 0.7 }, { scale: 1.8, autoAlpha: 0, duration: 0.6, ease: 'power2.out' }, '<')
+      })
+    })
 
   const onSubmit = async (e) => {
     e.preventDefault()
@@ -154,7 +198,12 @@ export default function ContractBook({ open, originRef, onFinished }) {
       signatureImage: !sigEmpty && sig.current ? sig.current.toDataURL() : null,
       consent,
     })
-    if (status === 'sent' || status === 'demo') setTimeout(() => close(status), 450)
+    if (status === 'sent' || status === 'demo') {
+      busy.current = true
+      await stamp()
+      busy.current = false
+      close(status)
+    }
   }
 
   if (!mounted) return null
@@ -163,36 +212,36 @@ export default function ContractBook({ open, originRef, onFinished }) {
 
   return createPortal(
     <div ref={overlay} className="fixed inset-0 z-[90] flex items-center justify-center overflow-hidden p-3 sm:p-6" style={{ visibility: 'hidden' }}>
-      <div className="absolute inset-0 bg-charcoal/35 backdrop-blur-[14px] backdrop-saturate-[.8]" onClick={() => close(null)} aria-hidden="true" />
+      <div className="absolute inset-0 bg-charcoal/40 backdrop-blur-[14px] backdrop-saturate-[.8]" onClick={() => close(null)} aria-hidden="true" />
 
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={`${ID}-title`} className="relative [perspective:2600px]">
-        <button
-          type="button"
-          onClick={() => close(null)}
-          className="icon-btn absolute -top-1 right-1 z-30 bg-ivory shadow-soft sm:-right-3 sm:-top-3"
-          aria-label="Close the contract book"
-        >
+        <button type="button" onClick={() => close(null)} className="icon-btn absolute -top-1 right-1 z-30 bg-white shadow-soft sm:-right-4 sm:-top-4" aria-label="Close the contract book">
           <Close />
         </button>
 
-        <form ref={book} noValidate onSubmit={onSubmit} className="contract-book relative h-[min(740px,90dvh)] w-[min(1080px,94vw)] [transform-style:preserve-3d]">
+        <form ref={book} noValidate onSubmit={onSubmit} className="relative h-[min(740px,90dvh)] w-[min(1080px,94vw)] [transform-style:preserve-3d]">
           {/* Hardcover boards behind the pages. The left board only shows once the cover opens. */}
           <div className="book-board absolute inset-0 rounded-[18px] md:-inset-y-3 md:left-1/2 md:-right-3 md:rounded-l-none" aria-hidden="true" />
-          <div data-board-left className="book-board absolute -inset-y-3 -left-3 right-1/2 hidden rounded-r-none rounded-l-[18px] md:block" aria-hidden="true" />
+          <div data-board-left className="book-board absolute -inset-y-3 -left-3 right-1/2 hidden rounded-l-[18px] rounded-r-none md:block" aria-hidden="true" />
+
+          {/* Ribbon bookmark */}
+          <span data-ribbon className="book-ribbon pointer-events-none absolute -top-3 left-[calc(50%+0.55rem)] z-30 hidden h-[6.5rem] md:block" aria-hidden="true" />
 
           <div className="relative grid h-full overflow-hidden rounded-[14px] md:grid-cols-2 md:overflow-visible">
             <div className="h-full overflow-y-auto overscroll-contain md:contents">
               {/* Left page */}
               <section ref={left} aria-label="Your details" className="book-page book-page-left md:h-full md:overflow-y-auto md:overscroll-contain">
-                <div data-page-item className="flex items-center gap-3 text-charcoal">
-                  <LogoMark className="h-6 w-auto" />
-                  <span className="text-[0.68rem] font-semibold uppercase tracking-[0.35em]">MOVA Logistics</span>
+                <div data-page-item className="flex items-center justify-between text-charcoal">
+                  <span className="flex items-end text-[1.3rem] font-extrabold leading-none">
+                    MOV
+                    <LogoA className="mb-[0.15em] ml-[0.03em] h-[0.72em] w-auto" />
+                  </span>
+                  <span className="hidden pr-6 text-[0.62rem] font-bold uppercase tracking-[0.3em] text-charcoal/50 sm:inline">Partnership enquiry</span>
                 </div>
-                <p data-page-item className="eyebrow mt-8">Partnership enquiry</p>
-                <h2 data-page-item id={`${ID}-title`} className="mt-2 text-[1.9rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-charcoal sm:text-[2.3rem]">
-                  Let’s plan your journey <span className="text-orange">together.</span>
+                <h2 data-page-item id={`${ID}-title`} className="mt-7 text-[1.9rem] font-extrabold leading-[1.05] tracking-[-0.035em] text-charcoal sm:text-[2.3rem]">
+                  Let’s plan your <span className="serif-i text-[1.1em] text-orange">journey</span> together.
                 </h2>
-                <p data-page-item className="mt-3 text-[0.95rem] leading-relaxed text-charcoal-muted">
+                <p data-page-item className="mt-3 text-[0.95rem] leading-relaxed text-charcoal/75">
                   Fill in these pages and sign at the end. Our team reviews every enquiry and plans the details with you before anything is agreed.
                 </p>
                 <div data-page-item>
@@ -208,33 +257,29 @@ export default function ContractBook({ open, originRef, onFinished }) {
 
               {/* Right page */}
               <section ref={right} aria-label="Your shipment and signature" className="book-page book-page-right md:h-full md:overflow-y-auto md:overscroll-contain">
-                <h3 data-page-item className="text-sm font-semibold uppercase tracking-[0.22em] text-charcoal">Your shipment</h3>
+                <h3 data-page-item className="text-sm font-extrabold uppercase tracking-[0.2em] text-charcoal">Your shipment</h3>
                 <div data-page-item className="mt-4">
                   <EnquiryFields idPrefix={ID} tone="paper" only={['service', 'pickup', 'destination', 'cargo', 'date']} {...form} />
                 </div>
 
-                <div data-page-item className="mt-6">
-                  <p className="mb-1.5 flex items-center gap-2 text-sm font-medium text-charcoal" id={`${ID}-sig-label`}>
+                <div data-page-item className="relative mt-6" data-seal-anchor>
+                  <p className="mb-1.5 flex items-center gap-2 text-sm font-bold text-charcoal" id={`${ID}-sig-label`}>
                     <Pen /> Signature
                   </p>
-                  <SignaturePad
-                    ref={sig}
-                    id={`${ID}-signature`}
-                    onChange={setSigEmpty}
-                    invalid={!!extraErrors.signature}
-                    describedBy={extraErrors.signature ? `${ID}-signature-error` : `${ID}-sig-label`}
-                  />
-                  <label htmlFor={`${ID}-typed`} className="mt-3 block text-xs font-medium text-charcoal-muted">
+                  <SignaturePad ref={sig} id={`${ID}-signature`} onChange={setSigEmpty} invalid={!!extraErrors.signature} describedBy={extraErrors.signature ? `${ID}-signature-error` : `${ID}-sig-label`} />
+                  {sealed && (
+                    <div className="pointer-events-none absolute -bottom-6 right-2 z-10" aria-hidden="true">
+                      <span data-seal-ring className="absolute inset-0 rounded-full border-2 border-orange" />
+                      <div data-seal className="seal relative flex flex-col items-center justify-center text-white">
+                        <LogoMark className="h-7 w-auto text-white" />
+                        <span className="mt-1 text-[0.55rem] font-extrabold uppercase tracking-[0.22em]">Received</span>
+                      </div>
+                    </div>
+                  )}
+                  <label htmlFor={`${ID}-typed`} className="mt-3 block text-xs font-semibold text-charcoal-muted">
                     Prefer the keyboard? Type your name to sign
                   </label>
-                  <input
-                    id={`${ID}-typed`}
-                    value={typedSig}
-                    onChange={(e) => setTypedSig(e.target.value)}
-                    className="field field-paper mt-1 text-lg font-semibold italic"
-                    autoComplete="name"
-                    aria-describedby={extraErrors.signature ? `${ID}-signature-error` : undefined}
-                  />
+                  <input id={`${ID}-typed`} value={typedSig} onChange={(e) => setTypedSig(e.target.value)} className="field field-paper serif-i mt-1 text-xl" autoComplete="name" aria-describedby={extraErrors.signature ? `${ID}-signature-error` : undefined} />
                   {extraErrors.signature && (
                     <p id={`${ID}-signature-error`} className="field-error">
                       {extraErrors.signature}
@@ -264,15 +309,19 @@ export default function ContractBook({ open, originRef, onFinished }) {
 
                 <div data-page-item className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-charcoal/10 pt-5">
                   <p className="text-xs text-charcoal-muted" aria-live="polite">
-                    {form.status === 'error'
-                      ? 'We could not send your enquiry. Please try again.'
-                      : form.touched.__all && (form.errorCount || Object.keys(extraErrors).length)
-                        ? 'A few details still need your attention.'
-                        : isDemoMode
-                          ? 'Demo mode: nothing will be sent.'
-                          : 'We reply to every enquiry.'}
+                    {sealed
+                      ? isDemoMode
+                        ? 'Signed. Demo mode, so nothing was sent.'
+                        : 'Signed and sent. Thank you.'
+                      : form.status === 'error'
+                        ? 'We could not send your enquiry. Please try again.'
+                        : form.touched.__all && (form.errorCount || Object.keys(extraErrors).length)
+                          ? 'A few details still need your attention.'
+                          : isDemoMode
+                            ? 'Demo mode: nothing will be sent.'
+                            : 'We reply to every enquiry.'}
                   </p>
-                  <button type="submit" className="btn-primary" disabled={submitting}>
+                  <button type="submit" className="btn-primary" disabled={submitting || sealed}>
                     {submitting ? 'Signing' : isDemoMode ? 'Sign and finish demo' : 'Sign and send'}
                     <ArrowRight />
                   </button>
@@ -281,18 +330,30 @@ export default function ContractBook({ open, originRef, onFinished }) {
             </div>
 
             {/* Spine shading between the pages */}
-            <div className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-16 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(32,35,33,.16)_48%,rgba(32,35,33,.22)_50%,rgba(32,35,33,.16)_52%,transparent)] md:block" aria-hidden="true" />
+            <div className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-16 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(27,33,33,.16)_48%,rgba(27,33,33,.24)_50%,rgba(27,33,33,.16)_52%,transparent)] md:block" aria-hidden="true" />
 
-            {/* Cover: front is the leather contract cover, back is the inside paper */}
+            {/* A loose page that turns over after the cover opens */}
+            <div className="pointer-events-none absolute inset-y-0 left-1/2 right-0 z-10 hidden [transform-style:preserve-3d] md:block" aria-hidden="true">
+              <div data-leaf className="book-leaf">
+                <div data-leaf-shade className="absolute inset-0 rounded-[inherit] bg-black opacity-0" />
+              </div>
+            </div>
+
+            {/* Cover: front is the leather contract cover with foil lettering, back is the inside paper */}
             <div ref={cover} className="book-cover absolute inset-0 z-20 md:left-1/2 md:w-1/2" aria-hidden="true">
               <div className="book-cover-face book-cover-front">
-                <div className="absolute inset-4 rounded-[10px] border border-[#D96936]/40" />
-                <div className="relative flex h-full flex-col items-center justify-center px-8 text-center">
-                  <LogoMark className="h-10 w-auto text-ivory" />
-                  <p className="mt-5 text-[0.7rem] font-semibold uppercase tracking-[0.5em] text-ivory/70">MOVA Logistics</p>
-                  <p className="mt-8 text-4xl font-extrabold uppercase tracking-[0.12em] text-ivory sm:text-5xl">Contract</p>
-                  <span className="mt-6 h-px w-24 bg-orange" />
-                  <p className="mt-6 text-sm text-ivory/60">Partnership enquiry</p>
+                <div className="absolute inset-4 rounded-[10px] border border-[#EA6A1F]/45" />
+                <div className="absolute inset-[22px] rounded-[8px] border border-white/5" />
+                <div className="relative flex h-full flex-col items-center justify-center overflow-hidden px-8 text-center">
+                  <span className="flex items-end text-[2.6rem] font-extrabold leading-none text-white/90">
+                    MOV
+                    <LogoA className="mb-[0.15em] ml-[0.03em] h-[0.72em] w-auto" />
+                  </span>
+                  <p className="mt-2 pl-[0.6em] text-[0.62rem] font-bold uppercase tracking-[0.6em] text-white/60">Logistics</p>
+                  <p className="book-foil mt-10 text-[2.6rem] font-extrabold uppercase tracking-[0.14em] sm:text-[3.2rem]">Contract</p>
+                  <span className="mt-5 h-[2px] w-24 bg-orange" />
+                  <p className="serif-i mt-5 text-xl text-white/70">Partnership enquiry</p>
+                  <span data-foil-sweep className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
                 </div>
                 <div data-cover-shade className="absolute inset-0 rounded-[inherit] bg-black opacity-0" />
               </div>

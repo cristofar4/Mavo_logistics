@@ -5,27 +5,24 @@
  * House style: no hyphens or dash punctuation in visible copy.
  *
  * Values set to `null` are details the business has not supplied yet.
- * The UI renders them as clearly marked placeholders instead of inventing data.
+ * Contact rows and social links only appear once a real value is filled in,
+ * so the site never shows invented details or dead links.
  */
 
 export const brand = {
   name: 'MOVA Logistics',
   short: 'MOVA',
-  tagline: 'People. Freight. Progress.',
-  description:
-    'Reliable logistics for a connected world. Road, air and sea freight with warehousing, planned around your business.',
+  description: 'Connecting businesses and people through reliable, flexible and forward thinking logistics.',
 }
 
-/* Contact details. Replace null with real values when available. */
+/* Contact details. Replace null with real values; each one then appears in the footer. */
 export const contact = {
   email: null, // e.g. 'hello@movalogistics.com'
   phone: null, // e.g. '+1 555 0100'
-  whatsapp: null, // e.g. 'https://wa.me/15550100'
   address: null, // e.g. '12 Harbour Road, Port City'
-  hours: null, // e.g. 'Monday to Friday, 8am to 6pm'
 }
 
-/* Social profiles. Only entries with a url are rendered as links. */
+/* Social profiles. Only entries with a url are rendered. */
 export const socials = [
   { label: 'LinkedIn', url: null },
   { label: 'Instagram', url: null },
@@ -33,7 +30,7 @@ export const socials = [
 ]
 
 export const nav = [
-  { label: 'Services', href: '#services' },
+  { label: 'Services', href: '#services', dropdown: true },
   { label: 'Industries', href: '#industries' },
   { label: 'Our fleet', href: '#fleet' },
   { label: 'About', href: '#about' },
@@ -42,42 +39,34 @@ export const nav = [
 
 /*
  * Images live in /public/images as `<name>-800.webp` and `<name>-1600.webp`.
- * `w` and `h` are the intrinsic size of the 1600 version (used to reserve layout space).
+ * `w` and `h` are the intrinsic size of the larger file (used to reserve layout space).
  */
 export const images = {
-  heroPort: { name: 'hero-port', w: 1600, h: 900, alt: 'White MOVA truck parked at a container port at sunset' },
-  road: { name: 'road', w: 1600, h: 900, alt: 'White truck driving along a mountain road at sunrise' },
-  air: { name: 'air', w: 1600, h: 900, alt: 'Cargo aircraft taking off against an orange evening sky' },
+  heroPort: { name: 'hero-port', w: 1600, h: 800, alt: 'White truck at a container port at sunset, with a cargo ship and cranes behind it' },
+  road: { name: 'road', w: 1600, h: 900, alt: 'White truck driving along a winding mountain road' },
+  air: { name: 'air', w: 1600, h: 900, alt: 'Cargo aircraft taking off' },
   sea: { name: 'sea', w: 1600, h: 900, alt: 'Container ship sailing along a mountainous coastline at sunset' },
+  seaAerial: { name: 'sea-aerial', w: 1332, h: 2000, alt: 'Aerial view of a container ship loaded with colourful containers at sea' },
   warehouse: { name: 'warehouse', w: 1600, h: 1066, alt: 'Orange reach truck between racks of palletised stock in a warehouse' },
-  about: { name: 'about', w: 1600, h: 1066, alt: 'Busy distribution centre with rows of parcels and storage racks' },
-  retail: { name: 'retail', w: 1600, h: 2000, alt: 'Parcel being handed over to a customer' },
-  manufacturing: { name: 'manufacturing', w: 1600, h: 1066, alt: 'Robotic arms assembling a car body on a production line' },
-  agriculture: { name: 'agriculture', w: 1600, h: 1066, alt: 'Two people shaking hands in a golden wheat field' },
-  construction: { name: 'construction', w: 1600, h: 1066, alt: 'Construction team in high visibility vests on a large building site' },
-  office: { name: 'office', w: 1600, h: 900, alt: '' },
-  worldMap: { name: 'world-relief', w: 1600, h: 736, alt: '' },
-  vehicleVan: { name: 'vehicle-van', w: 729, h: 391, widths: [800], alt: 'White MOVA Logistics delivery van' },
-  vehicleCargo: { name: 'vehicle-cargo', w: 744, h: 472, widths: [800], alt: 'White MOVA Logistics rigid cargo truck' },
-  vehicleHeavy: { name: 'vehicle-heavy', w: 763, h: 467, widths: [800], alt: 'White heavy freight tractor unit with curtain side trailer' },
+  retail: { name: 'retail', w: 1600, h: 900, alt: 'Woman checking stock on warehouse shelves with a tablet' },
+  manufacturing: { name: 'manufacturing', w: 1600, h: 1066, alt: 'Orange robotic arms on a factory production line' },
+  agriculture: { name: 'agriculture', w: 1600, h: 1066, alt: 'Combine harvester working a wheat field at sunset' },
+  fleetTruck: { name: 'fleet-truck', w: 1600, h: 900, alt: 'White truck and trailer on an open road at sunset' },
+  fleetVan: { name: 'fleet-van', w: 1600, h: 901, alt: 'White delivery van parked beside a brick building' },
+  fleetHeavy: { name: 'fleet-heavy', w: 1600, h: 819, alt: 'Heavy freight truck carrying a large steel vessel strapped to a low loader' },
+  worldMap: { name: 'world-dark', w: 1600, h: 736, alt: '' },
   /*
-   * Representative for the contract scene (the MOVA team member from the design reference),
-   * in two layers so the pen hand can move on its own:
+   * Representative for the partnership scene (the MOVA team member from the design reference),
+   * in two layers from the same 1712 x 1480 image:
    *   rep-body: the person with the pen hand removed (shirt restored behind it)
-   *   rep-hand: the pen hand on its own, positioned with `handBox` (percent of the body image)
-   * Both come from the same 1712 x 1480 image. The body's far edge is straight at `edgeRatio`
-   * of the image width and lines up with the wall edge in the scene.
+   *   rep-hand: the pen hand, positioned with `handBox`, so it can sit in front of the wall
+   * His far body edge is straight at `edgeRatio` of the image width and hides behind the wall.
    * Replace with your own transparent photo shoot assets using the same framing (see README).
    */
   repBody: { name: 'rep-body', w: 1600, h: 1383, alt: 'Smiling MOVA Logistics representative holding an open contract and offering a pen' },
   repHand: { name: 'rep-hand', w: 396, h: 377, alt: '' },
 }
 
-/*
- * Optional enhancement for the contract scene.
- * Supply a transparent video (WebM with alpha, plus HEVC with alpha .mov for Safari)
- * of the representative to replace the still image. Keep the same framing.
- */
 export const representativeGeometry = {
   edgeRatio: 0.1437, // straight body edge, as a fraction of image width
   aspect: 1712 / 1480,
@@ -85,28 +74,37 @@ export const representativeGeometry = {
   penTip: { x: 28.5, y: 74.9 }, // where the pen tip glints, percent of the body image
 }
 
+/*
+ * Optional: a transparent video (WebM with alpha, plus HEVC with alpha .mov for Safari)
+ * of the representative to replace the still image. Keep the same framing.
+ */
 export const representativeVideo = {
-  webm: null, // e.g. '/media/representative.webm'
-  mov: null, // e.g. '/media/representative.mov'
+  webm: null,
+  mov: null,
 }
 
 export const hero = {
-  label: 'Logistics that moves you forward',
-  titleA: 'Moving business.',
-  titleB: 'Connecting people.',
-  body: 'Reliable road, air and sea freight, from the first mile to the final destination. One team plans every step.',
-  link: 'Explore our services',
-  side: 'People move possibilities',
+  label: 'Logistics without limits',
+  body: 'Reliable and flexible logistics solutions that keep your goods, your business and your people moving.',
+  cta: 'Explore our services',
+  tagline: 'Road. Air. Sea.',
 }
+
+/* The dark strip under the hero. The nav's About link points here. */
+export const values = [
+  { id: 'handling', title: 'Careful handling', body: 'Your goods are treated as if they were our own at every handover.' },
+  { id: 'communication', title: 'Clear communication', body: 'One point of contact, plain answers and updates when they matter.' },
+  { id: 'journeys', title: 'Connected journeys', body: 'Road, air, sea and storage planned as one connected journey.' },
+]
 
 export const services = [
   {
     id: 'road',
+    no: '01',
     title: 'Road freight',
-    short: 'Reliable transport across regions.',
+    short: 'Flexible, reliable transport that keeps your goods moving across cities and countries.',
     image: images.road,
-    summary:
-      'Scheduled and on demand road transport for parcels, pallets and full loads, planned around your pickup windows and delivery points.',
+    tags: ['Full loads', 'Part loads'],
     suits: ['Palletised and boxed goods', 'Full and part loads', 'Regular regional runs'],
     detail: [
       'Road freight is the everyday backbone of moving goods. We match your shipment to a suitable vehicle, agree collection and delivery windows with you and coordinate the handover at each end.',
@@ -116,11 +114,11 @@ export const services = [
   },
   {
     id: 'air',
+    no: '02',
     title: 'Air freight',
-    short: 'Speed for urgent cargo.',
+    short: 'Fast, secure and efficient air transport for time sensitive shipments.',
     image: images.air,
-    summary:
-      'When time matters most, we arrange air cargo and look after the paperwork and handovers at both ends of the journey.',
+    tags: ['Express', 'Global reach'],
     suits: ['Time sensitive parts', 'High value goods', 'Samples and documents'],
     detail: [
       'Air freight is the fastest way to move goods over long distances. We arrange space with air cargo carriers, prepare the shipment for travel and coordinate the road legs to and from the airport.',
@@ -129,26 +127,12 @@ export const services = [
     steps: ['Confirm deadline and cargo', 'Booking and preparation', 'Airport handover and final delivery'],
   },
   {
-    id: 'sea',
-    title: 'Sea freight',
-    short: 'Global reach. Dependable delivery.',
-    image: images.sea,
-    summary:
-      'Container and shared container shipments for larger volumes, coordinated from origin pickup to final delivery.',
-    suits: ['Full container loads', 'Shared container space', 'Bulky and heavy goods'],
-    detail: [
-      'Sea freight is a cost effective way to move larger volumes internationally. We arrange the container, coordinate the port handling and connect the sea journey with road transport at both ends.',
-      'If you do not need a whole container, ask us about sharing space with other shipments.',
-    ],
-    steps: ['Plan volume and timing', 'Container and port coordination', 'Onward delivery from port'],
-  },
-  {
     id: 'warehousing',
+    no: '03',
     title: 'Warehousing',
-    short: 'Space for your next move.',
+    short: 'Safe, organised and flexible storage solutions that fit your supply chain.',
     image: images.warehouse,
-    summary:
-      'Storage and handling that keeps stock organised between journeys, ready for dispatch when you need it.',
+    tags: ['Storage', 'Distribution'],
     suits: ['Short and long term storage', 'Pick and pack support', 'Cross docking between vehicles'],
     detail: [
       'Warehousing gives your goods a safe place to wait between journeys. We can receive, store and prepare stock for dispatch so that it moves on as soon as you are ready.',
@@ -156,16 +140,85 @@ export const services = [
     ],
     steps: ['Agree space and handling', 'Receive and store', 'Prepare and dispatch'],
   },
+  {
+    id: 'sea',
+    no: '04',
+    title: 'Sea freight',
+    short: 'Cost effective and reliable shipping for cargo of every size across global routes.',
+    image: images.seaAerial,
+    detailImage: images.sea,
+    tags: ['Full containers', 'Shared space'],
+    suits: ['Full container loads', 'Shared container space', 'Bulky and heavy goods'],
+    detail: [
+      'Sea freight is a cost effective way to move larger volumes internationally. We arrange the container, coordinate the port handling and connect the sea journey with road transport at both ends.',
+      'If you do not need a whole container, ask us about sharing space with other shipments.',
+    ],
+    steps: ['Plan volume and timing', 'Container and port coordination', 'Onward delivery from port'],
+  },
 ]
 
+export const industries = [
+  {
+    id: 'retail',
+    title: 'Retail',
+    body: 'Reliable supply for stores, platforms and growing brands.',
+    image: images.retail,
+  },
+  {
+    id: 'manufacturing',
+    title: 'Manufacturing',
+    body: 'Dependable logistics for materials, components and finished goods.',
+    image: images.manufacturing,
+  },
+  {
+    id: 'agriculture',
+    title: 'Agriculture',
+    body: 'From field to market, we keep essential goods moving efficiently.',
+    image: images.agriculture,
+  },
+]
+
+/*
+ * Fleet. Capacities and fleet sizes are not published yet: `specs` values stay null
+ * and show as "To be confirmed" until real figures are added.
+ */
+export const fleet = {
+  main: {
+    id: 'trucks',
+    title: 'Cargo trucks',
+    body: 'Room for palletised and bulky goods on scheduled routes and dedicated runs between sites.',
+    suits: ['Palletised goods', 'Bulky items', 'Scheduled distribution'],
+    image: images.fleetTruck,
+  },
+  side: [
+    {
+      id: 'vans',
+      title: 'Delivery vans',
+      body: 'Agile and efficient for smaller, time sensitive loads.',
+      suits: ['Parcels', 'Ecommerce orders', 'Multi stop city routes'],
+      image: images.fleetVan,
+    },
+    {
+      id: 'heavy',
+      title: 'Heavy freight',
+      body: 'Strong, versatile and built for larger, more demanding shipments.',
+      suits: ['Full truckloads', 'Machinery', 'Oversized cargo'],
+      image: images.fleetHeavy,
+    },
+  ],
+  specs: [
+    { label: 'Payload', value: null },
+    { label: 'Fleet size', value: null },
+  ],
+}
+
 export const contractScene = {
-  eyebrow: 'Partnership',
   titleA: 'Your next chapter',
   titleB: 'starts here.',
-  body: 'Tell us what you need to move. Let us plan the journey.',
+  body: 'Partner with a logistics team that is committed to your goals, your growth and what comes next.',
   cta: 'Let’s work together',
-  bubble: 'Ready to sign with us?',
   hello: 'Hi there!',
+  bubble: 'Ready to sign with us?',
   bubbleYes: 'Yes, let’s go',
   bubbleNo: 'Not yet',
   bubbleLater: 'No rush. I will be right here when you are ready.',
@@ -174,137 +227,67 @@ export const contractScene = {
   note: 'Signing opens a partnership enquiry. It is not a binding contract.',
 }
 
-export const fleet = [
-  {
-    id: 'vans',
-    tab: 'Delivery vans',
-    title: 'Delivery vans',
-    lead: 'Flexible capacity for local and regional drops.',
-    body: 'Compact and quick to load, vans suit smaller consignments that need to reach many addresses in towns and cities.',
-    suits: ['Parcels and small consignments', 'Retail and ecommerce orders', 'Multi stop routes in towns and cities'],
-    image: images.vehicleVan,
-    specs: [
-      { label: 'Payload', value: null },
-      { label: 'Load space', value: null },
-      { label: 'Availability', value: null },
-    ],
-  },
-  {
-    id: 'trucks',
-    tab: 'Cargo trucks',
-    title: 'Cargo trucks',
-    lead: 'Room for larger shipments across regions.',
-    body: 'Rigid cargo trucks carry palletised and bulky goods on scheduled routes and dedicated runs between sites.',
-    suits: ['Palletised goods', 'Furniture and bulky items', 'Scheduled distribution between sites'],
-    image: images.vehicleCargo,
-    specs: [
-      { label: 'Payload', value: null },
-      { label: 'Pallet spaces', value: null },
-      { label: 'Availability', value: null },
-    ],
-  },
-  {
-    id: 'heavy',
-    tab: 'Heavy freight',
-    title: 'Heavy freight vehicles',
-    lead: 'Built for the biggest loads.',
-    body: 'Tractor units and trailers handle full loads, machinery and oversized cargo over longer distances.',
-    suits: ['Full truckloads', 'Machinery and construction materials', 'Long distance haulage'],
-    image: images.vehicleHeavy,
-    specs: [
-      { label: 'Payload', value: null },
-      { label: 'Trailer types', value: null },
-      { label: 'Availability', value: null },
-    ],
-  },
-]
-
 export const coverage = {
-  heading: 'Built for the journey ahead.',
-  body: 'Local expertise, nationwide reach and international connections, coordinated by one team.',
+  heading: 'Closer to wherever you need us.',
   note: 'Illustrative map. Service areas and routes are confirmed for each enquiry.',
   items: [
-    { id: 'local', title: 'Local delivery', body: 'Quick, careful drops for your community and nearby markets.' },
-    { id: 'national', title: 'Nationwide transport', body: 'Road freight that links your sites, suppliers and customers across the country.' },
-    { id: 'international', title: 'International freight', body: 'Air and sea shipments coordinated with onward delivery at both ends.' },
+    { id: 'local', title: 'Local' },
+    { id: 'national', title: 'Nationwide' },
+    { id: 'international', title: 'International' },
   ],
 }
-
-export const industries = [
-  {
-    id: 'retail',
-    title: 'Retail and ecommerce',
-    body: 'Stock replenishment for stores and dependable delivery of online orders, so shelves stay full and customers stay happy.',
-    tags: ['Store replenishment', 'Online orders', 'Seasonal peaks'],
-    image: images.retail,
-  },
-  {
-    id: 'manufacturing',
-    title: 'Manufacturing',
-    body: 'Transport for raw materials, components and finished goods, timed around your production schedule.',
-    tags: ['Inbound materials', 'Components', 'Finished goods'],
-    image: images.manufacturing,
-  },
-  {
-    id: 'agriculture',
-    title: 'Agriculture',
-    body: 'Logistics for seasonal harvests and year round supply, from farm gate to processor and market.',
-    tags: ['Harvest season', 'Equipment', 'Supply to market'],
-    image: images.agriculture,
-  },
-  {
-    id: 'construction',
-    title: 'Construction',
-    body: 'Planned deliveries of materials and equipment to sites, coordinated with your project timeline.',
-    tags: ['Building materials', 'Plant and equipment', 'Site deliveries'],
-    image: images.construction,
-  },
-]
 
 export const process = {
-  heading: 'A clear path from start to finish.',
-  body: 'A simple process, designed to keep your business moving.',
+  eyebrow: 'Our process',
+  heading: 'A simple path from request to delivery.',
   steps: [
-    { title: 'Tell us what you need', body: 'Share your cargo, pickup point, destination and timing through a short form or a conversation with our team.' },
-    { title: 'We plan your route', body: 'We recommend the right mode and vehicle, then confirm the plan and the price with you before anything moves.' },
-    { title: 'Your cargo moves', body: 'We coordinate collection, transport and handover, and keep you informed along the way.' },
+    { title: 'Tell us', body: 'Share your shipment needs and where it is going.' },
+    { title: 'We plan', body: 'Build the right solution with the best route, mode and schedule.' },
+    { title: 'We deliver', body: 'Move your goods safely, efficiently and on time.' },
   ],
 }
 
-export const about = {
-  eyebrow: 'About MOVA',
-  heading: 'Logistics with a personal touch.',
-  intro:
-    'MOVA Logistics helps businesses move goods with less uncertainty. We focus on the parts of logistics that matter most to you: talking clearly, handling cargo with care and making sure every leg of the journey connects.',
-  values: [
-    { title: 'Clear communication', body: 'One point of contact, plain answers and updates when they matter.' },
-    { title: 'Careful handling', body: 'Your goods are treated as if they were our own at every handover.' },
-    { title: 'Coordinated transport', body: 'Road, air, sea and storage planned as one connected journey.' },
-  ],
+export const faqIntro = {
+  heading: 'Frequently asked questions',
+  body: 'Quick answers to the things our customers ask most.',
 }
 
 export const faqs = [
   {
-    q: 'What goods can you transport?',
+    q: 'What types of shipments do you handle?',
     a: 'We move a wide range of general cargo, from parcels and pallets to bulky items, machinery and full loads. Some goods, such as hazardous or temperature controlled cargo, need special arrangements, so please describe your cargo and we will confirm what is possible.',
   },
   {
-    q: 'How do I request a quote?',
-    a: 'Select Get a quote at the top of the page and share a few details about your shipment. Our team reviews every request and replies with a recommended plan and price.',
+    q: 'Do you serve both local and international routes?',
+    a: 'Yes. We plan local and nationwide road transport and coordinate international air and sea freight, connecting each leg into one journey. Destinations and timings are confirmed for each shipment.',
   },
   {
-    q: 'Do you handle international freight?',
-    a: 'Yes. We coordinate air and sea freight together with the road journeys at each end. Destinations, documents and timings are confirmed for each shipment.',
+    q: 'How do you ensure my cargo is handled safely?',
+    a: 'We agree packing, loading and handover requirements with you before anything moves, match your cargo to a suitable vehicle and keep you informed at each handover. Tell us about anything fragile or valuable so it can be planned for.',
   },
   {
-    q: 'Can you support recurring business deliveries?',
+    q: 'Can you support recurring shipments?',
     a: 'Yes. Regular collections and delivery schedules can be planned around your operations. Tell us about the frequency and volumes you expect and we will suggest an arrangement.',
   },
   {
-    q: 'What information should I provide?',
-    a: 'The most useful details are the pickup location, the destination, what the cargo is, its approximate size and weight, how it is packed and when it needs to arrive. If you are unsure about anything, share what you know and we will help with the rest.',
+    q: 'Do you offer warehousing as well as transport?',
+    a: 'Yes. We can receive, store and prepare your stock for dispatch, then move it on by road, air or sea. Storage terms and handling options are agreed for each project.',
+  },
+  {
+    q: 'How do I get a quote?',
+    a: 'Select Get a quote and share a few details: what you are moving, where it is collected from, where it is going and when. Our team reviews every request and replies with a recommended plan and price.',
   },
 ]
+
+export const footer = {
+  company: [
+    { label: 'About', href: '#about' },
+    { label: 'Our fleet', href: '#fleet' },
+    { label: 'Industries', href: '#industries' },
+    { label: 'Contact center', href: '#contact' },
+  ],
+  getInTouch: 'Have a shipment in mind? Our team is ready to help you find the right solution.',
+}
 
 export const serviceOptions = [
   { value: 'road', label: 'Road freight' },

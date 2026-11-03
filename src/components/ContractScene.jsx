@@ -7,22 +7,18 @@ import ContractBook from './ContractBook'
 import { ArrowRight } from './Icons'
 
 /*
- * Signature section, full width as in the design.
+ * Partnership scene, as in the design: the representative leans out from behind a plaster pillar on the
+ * left, a speech cloud by his head, the headline and action on the right.
  *
- * The representative is one fixed pose (his hands never move on their own). The scene gets its life from
- * camera, light and depth instead:
+ * His pose is fixed (his hands never move on their own); the motion comes from camera, light and depth:
+ *   1. Step out   he walks out from behind the pillar, turning toward the visitor in 3D,
+ *                 while a warm light sweeps the wall and his shadow lands on it             1.5s
+ *   2. Hello      the cloud inflates from its tail with "Hi there!"                        0.6s
+ *   3. Headline   the words rise out of their masks, the orange rule draws down            0.7s
+ *   4. Ask        "Ready to sign with us?", a gloss over the contract, a glint on the pen   0.9s
+ *   5. Depth      afterwards, on desktop, the layers shift very slightly with the pointer
  *
- *   1. Dolly      the office behind him eases back like a camera move               2.2s
- *   2. Step out   he turns toward the visitor in 3D as he steps out from behind the wall, 1.5s
- *                 his shadow lands on the wall and a warm light sweeps across the room
- *   3. Thought    puffs rise from his head, the cloud inflates with "Hi there!"      0.6s
- *   4. Headline   words rise out of their masks                                       0.6s
- *   5. Ask        the cloud changes to "Ready to sign with us?", a gloss runs over the
- *                 contract and the pen tip glints                                     0.9s
- *   6. Depth      on desktop, the layers shift very slightly with the pointer
- *
- * Layers, back to front: office backdrop, light, body (clipped at the wall edge) with cast shadow,
- * wall panel with its edge shadow, pen hand (in front of the wall once he is out), glint, cloud.
+ * Plays once per visit when about half of the section is in view.
  */
 const TITLE_A = ['Your', 'next', 'chapter']
 const TITLE_B = ['starts', 'here.']
@@ -43,53 +39,49 @@ export default function ContractScene() {
       mm.add(MOTION_OK, () => {
         const section = root.current
         const handClip = section.querySelector('[data-hand-clip]')
-        const edgePx = () => section.querySelector('.cscene-panel').offsetWidth
+        const edgePx = () => section.querySelector('.cscene-pillar').offsetWidth
         setBubble('hello')
 
-        // Starting state
-        gsap.set('[data-backdrop]', { scale: 1.14, xPercent: 3 })
-        gsap.set('[data-light]', { xPercent: -70, autoAlpha: 0 })
+        gsap.set('[data-light]', { xPercent: -60, autoAlpha: 0 })
         gsap.set('[data-move]', { xPercent: -92, rotationY: 28, scale: 0.94, transformPerspective: 1400 })
         gsap.set('[data-cast]', { autoAlpha: 0, xPercent: -25 })
         gsap.set('[data-edge-shadow]', { autoAlpha: 0.3 })
         if (handClip) gsap.set(handClip, { clipPath: `inset(-40% -40% -40% ${edgePx()}px)` })
         gsap.set('[data-bubble]', { autoAlpha: 0 })
-        gsap.set('[data-bubble] [data-puff]', { scale: 0, transformOrigin: '50% 50%' })
-        gsap.set('[data-bubble] [data-cloud]', { scale: 0.2, transformOrigin: '20% 85%' })
+        gsap.set('[data-bubble] [data-tail]', { scale: 0, transformOrigin: '0% 100%' })
+        gsap.set('[data-bubble] [data-cloud]', { scale: 0.15, transformOrigin: '22% 80%' })
         gsap.set('[data-bubble] [data-cloud-content]', { autoAlpha: 0, scale: 0.85 })
         gsap.set('[data-word]', { yPercent: 115 })
+        gsap.set('[data-rule]', { scaleY: 0, transformOrigin: 'top' })
         gsap.set('[data-copy]', { autoAlpha: 0, y: 18 })
-        gsap.set('[data-cta]', { autoAlpha: 0, y: 18 })
 
         const tl = gsap.timeline({ paused: true, onComplete: settle })
 
-        // 1. Camera dolly and light
-        tl.to('[data-backdrop]', { scale: 1, xPercent: 0, duration: 2.2, ease: 'power2.out' }, 0)
-          .to('[data-light]', { xPercent: 40, autoAlpha: 1, duration: 1.6, ease: 'power2.out' }, 0.15)
-          .to('[data-light]', { autoAlpha: 0.45, duration: 1, ease: 'sine.inOut' }, '>-0.2')
-        // 2. He turns toward the visitor as he steps out
-        tl.to('[data-move]', { xPercent: 0, rotationY: 0, scale: 1, duration: 1.5, ease: 'power4.out' }, 0.1)
+        // 1. Step out, light and shadow
+        tl.to('[data-light]', { xPercent: 30, autoAlpha: 1, duration: 1.6, ease: 'power2.out' }, 0.1)
+          .to('[data-light]', { autoAlpha: 0.6, duration: 1, ease: 'sine.inOut' }, '>-0.2')
+          .to('[data-move]', { xPercent: 0, rotationY: 0, scale: 1, duration: 1.5, ease: 'power4.out' }, 0.1)
           .to('[data-cast]', { autoAlpha: 1, xPercent: 0, duration: 1.2, ease: 'power2.out' }, 0.25)
           .to('[data-edge-shadow]', { autoAlpha: 1, duration: 0.9, ease: 'power1.out' }, 0.4)
         if (handClip) tl.to(handClip, { clipPath: () => `inset(-40% -40% -40% -${edgePx()}px)`, duration: 0.6, ease: 'power2.inOut' }, 0.8)
-        // 3. Thought: puffs rise from his head, then the cloud inflates
+        // 2. Hello
         tl.to('[data-bubble]', { autoAlpha: 1, duration: 0.01 }, 1.0)
-          .to('[data-bubble] [data-puff]', { scale: 1, duration: 0.22, stagger: { each: 0.1, from: 'end' }, ease: 'back.out(2.5)' }, 1.0)
-          .to('[data-bubble] [data-cloud]', { scale: 1, duration: 0.6, ease: 'elastic.out(1, 0.65)' }, 1.22)
-          .to('[data-bubble] [data-cloud-content]', { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(1.8)' }, 1.38)
-        // 4. Headline
-        tl.to('[data-word]', { yPercent: 0, duration: 0.7, stagger: 0.06, ease: 'power4.out' }, 1.2)
-          .to('[data-copy]', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 1.6)
-        // 5. The question, a gloss over the contract and a glint on the pen
+          .to('[data-bubble] [data-tail]', { scale: 1, duration: 0.25, ease: 'back.out(2.5)' }, 1.0)
+          .to('[data-bubble] [data-cloud]', { scale: 1, duration: 0.65, ease: 'elastic.out(1, 0.6)' }, 1.12)
+          .to('[data-bubble] [data-cloud-content]', { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(1.8)' }, 1.3)
+        // 3. Headline
+        tl.to('[data-rule]', { scaleY: 1, duration: 0.7, ease: 'power3.inOut' }, 1.15)
+          .to('[data-word]', { yPercent: 0, duration: 0.7, stagger: 0.06, ease: 'power4.out' }, 1.2)
+          .to('[data-copy]', { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power3.out' }, 1.6)
+        // 4. The question, a gloss over the contract and a glint on the pen
         tl.call(() => setBubble('ask'), null, 2.35)
           .fromTo('[data-bubble] [data-cloud-content]', { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out', immediateRender: false }, 2.37)
           .fromTo('[data-bubble] [data-cloud]', { scale: 0.94 }, { scale: 1, duration: 0.45, ease: 'back.out(2)', immediateRender: false }, 2.35)
           .fromTo('[data-sheen]', { xPercent: -120 }, { xPercent: 320, duration: 1.1, ease: 'power2.inOut' }, 2.4)
           .fromTo('[data-glint]', { scale: 0, rotation: -45, autoAlpha: 1 }, { scale: 1, rotation: 45, duration: 0.35, ease: 'power2.out' }, 2.7)
           .to('[data-glint]', { scale: 0, rotation: 90, autoAlpha: 0, duration: 0.35, ease: 'power2.in' }, '>')
-          .to('[data-cta]', { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power3.out' }, 2.6)
 
-        // 6. Afterwards: a breath of movement and pointer depth on desktop
+        // 5. Afterwards: a breath of movement and pointer depth on desktop
         let removePointer = () => {}
         function settle() {
           if (handClip) gsap.set(handClip, { clipPath: 'none' })
@@ -100,19 +92,16 @@ export default function ContractScene() {
           if (!window.matchMedia('(pointer: fine)').matches) return
           const q = (sel, prop) => gsap.quickTo(sel, prop, { duration: 0.9, ease: 'power3.out' })
           const personX = q('[data-move]', 'x')
-          const backX = q('[data-backdrop]', 'x')
-          const backY = q('[data-backdrop]', 'y')
+          const wallX = q('[data-wall]', 'x')
           const cloudX = q('[data-bubble-par]', 'x')
           const onMove = (e) => {
             const r = section.getBoundingClientRect()
             const nx = (e.clientX - r.left) / r.width - 0.5
-            const ny = (e.clientY - r.top) / r.height - 0.5
             personX(nx * 12)
-            backX(nx * -18)
-            backY(ny * -10)
+            wallX(nx * -10)
             cloudX(nx * 7)
           }
-          const onLeave = () => [personX, backX, backY, cloudX].forEach((f) => f(0))
+          const onLeave = () => [personX, wallX, cloudX].forEach((f) => f(0))
           section.addEventListener('pointermove', onMove)
           section.addEventListener('pointerleave', onLeave)
           removePointer = () => {
@@ -123,7 +112,6 @@ export default function ContractScene() {
 
         ScrollTrigger.create({
           trigger: section,
-          // Play when the visitor reaches the section: about half of it in view.
           start: () => `top bottom-=${Math.min(section.offsetHeight * 0.5, window.innerHeight * 0.62)}`,
           once: true,
           onEnter: () => tl.play(),
@@ -171,20 +159,16 @@ export default function ContractScene() {
   const personMask = { WebkitMaskImage: `url(/images/${images.repBody.name}-800.webp)`, maskImage: `url(/images/${images.repBody.name}-800.webp)`, WebkitMaskSize: '100% 100%', maskSize: '100% 100%' }
 
   return (
-    <section id="partner" ref={root} className="relative overflow-hidden bg-ivory lg:h-[clamp(600px,86vh,700px)]" aria-labelledby="partner-title">
+    <section id="partner" ref={root} className="relative overflow-hidden bg-[#F3ECE1] lg:h-[clamp(470px,36vw,560px)]" aria-labelledby="partner-title">
       <div className="cscene relative aspect-[4/5] w-full overflow-hidden sm:aspect-[16/11] lg:absolute lg:inset-0 lg:aspect-auto">
-        {/* Office backdrop (moves like a camera dolly) and warm light */}
-        <div data-backdrop className="absolute -inset-[3%]" aria-hidden="true">
-          <Img image={images.office} sizes="100vw" alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-ivory/10 via-transparent to-charcoal/15" />
-        </div>
+        <div data-wall className="cscene-wall absolute -inset-x-[3%] inset-y-0" aria-hidden="true" />
         <div data-light className="cscene-light" aria-hidden="true" />
 
-        {/* Body, hidden behind the wall edge until he steps out */}
+        {/* Body, hidden behind the pillar until he steps out */}
         <div className="cscene-clip absolute inset-0">
           <div data-move className="cscene-person absolute">
             <div data-cast className="absolute inset-0" aria-hidden="true">
-              <Img image={images.repBody} sizes="(min-width:1024px) 60vw, 100vw" alt="" className="cscene-cast h-full w-full" />
+              <Img image={images.repBody} sizes="(min-width:1024px) 55vw, 100vw" alt="" className="cscene-cast h-full w-full" />
             </div>
             {useVideo ? (
               <video className="relative h-full w-full" autoPlay muted playsInline preload="auto" aria-label={images.repBody.alt}>
@@ -192,9 +176,8 @@ export default function ContractScene() {
                 <source src={representativeVideo.webm} type="video/webm" />
               </video>
             ) : (
-              <Img image={images.repBody} sizes="(min-width:1024px) 60vw, 100vw" className="relative h-full w-full select-none" />
+              <Img image={images.repBody} sizes="(min-width:1024px) 55vw, 100vw" className="relative h-full w-full select-none" />
             )}
-            {/* Gloss that runs over the contract once, masked to his silhouette */}
             <div className="pointer-events-none absolute inset-0" style={personMask} aria-hidden="true">
               <div className="absolute left-[40%] top-[42%] h-[56%] w-[60%] overflow-hidden">
                 <div data-sheen className="cscene-sheen absolute inset-y-0 left-0 w-[35%]" />
@@ -205,18 +188,17 @@ export default function ContractScene() {
           </div>
         </div>
 
-        {/* The ivory wall and the shadow it casts onto the room */}
-        <div className="cscene-panel absolute inset-y-0 left-0" aria-hidden="true" />
+        {/* Plaster pillar and the shadow it casts */}
+        <div className="cscene-pillar absolute inset-y-0 left-0" aria-hidden="true" />
         <div data-edge-shadow className="cscene-edge-shadow pointer-events-none absolute inset-y-0" aria-hidden="true" />
 
-        {/* Pen hand: fixed to his pose, it comes past the wall edge as he steps out */}
+        {/* Pen hand: part of his fixed pose, it comes past the pillar edge as he steps out */}
         {!useVideo && (
           <div data-hand-clip className="absolute inset-0" aria-hidden="true">
             <div data-move className="cscene-person absolute">
               <div className="absolute" style={{ left: `${hb.left}%`, top: `${hb.top}%`, width: `${hb.width}%`, height: `${hb.height}%` }}>
-                <Img image={images.repHand} sizes="(min-width:1024px) 15vw, 25vw" alt="" className="h-full w-full select-none drop-shadow-[0_18px_18px_rgba(0,0,0,.18)]" />
+                <Img image={images.repHand} sizes="(min-width:1024px) 14vw, 25vw" alt="" className="h-full w-full select-none drop-shadow-[0_18px_18px_rgba(0,0,0,.2)]" />
               </div>
-              {/* Glint at the pen tip */}
               <svg data-glint viewBox="0 0 40 40" className="cscene-glint absolute" style={{ left: `${geo.penTip.x}%`, top: `${geo.penTip.y}%` }}>
                 <path d="M20 0 C21 14 26 19 40 20 C26 21 21 26 20 40 C19 26 14 21 0 20 C14 19 19 14 20 0 Z" fill="#fff" />
                 <circle cx="20" cy="20" r="3.5" fill="#FFE6CC" />
@@ -229,12 +211,12 @@ export default function ContractScene() {
         <div data-bubble-par className="cscene-bubble absolute z-10">
           <div data-bubble ref={bubbleRef}>
             <div data-bubble-float>
-              <CloudBubble className="drop-shadow-[0_14px_22px_rgba(32,35,33,.2)]">
-                <p className={`font-extrabold leading-[1.1] tracking-[-0.02em] text-charcoal ${bubble === 'hello' ? 'text-[clamp(1.2rem,2.4vw,1.75rem)]' : bubble === 'ask' ? 'text-[clamp(0.95rem,1.6vw,1.25rem)]' : 'text-[clamp(0.82rem,1.3vw,1rem)]'}`}>
+              <CloudBubble className="drop-shadow-[0_16px_24px_rgba(27,33,33,.16)]">
+                <p className={`font-extrabold leading-[1.08] tracking-[-0.02em] text-charcoal ${bubble === 'hello' ? 'text-[clamp(1.3rem,2.2vw,1.8rem)]' : bubble === 'ask' ? 'text-[clamp(1.05rem,1.75vw,1.45rem)]' : 'text-[clamp(0.82rem,1.25vw,1rem)]'}`}>
                   {bubbleText}
                 </p>
                 {bubble === 'ask' && (
-                  <div className="mt-2.5 flex flex-nowrap justify-center gap-1.5 sm:gap-2">
+                  <div className="mt-2.5 flex flex-nowrap justify-center gap-1.5">
                     <button type="button" className="bubble-btn bubble-btn-yes" onClick={openBook} aria-haspopup="dialog">
                       {copy.bubbleYes}
                     </button>
@@ -261,38 +243,40 @@ export default function ContractScene() {
         </div>
       </div>
 
-      {/* Copy: on the wall panel on desktop, below the scene on smaller screens */}
-      <div className="relative z-20 lg:pointer-events-none lg:absolute lg:inset-0">
-        <div className="site-x flex h-full items-center py-12 lg:py-0">
-          <div className="lg:pointer-events-auto lg:max-w-[calc(44vw-7rem)] xl:max-w-[30rem]">
-            <h2 id="partner-title" className="display text-[clamp(2.4rem,4.2vw,4.4rem)]">
-              {TITLE_A.map((w) => (
-                <span key={w} className="inline-block overflow-hidden pb-[0.08em] align-bottom">
-                  <span data-word className="inline-block">
-                    {w}&nbsp;
+      {/* Copy: right side on desktop, below the scene on smaller screens */}
+      <div className="relative z-20 lg:pointer-events-none lg:absolute lg:inset-y-0 lg:left-[58%] lg:right-0">
+        <div className="flex h-full items-center px-4 py-10 sm:px-8 lg:px-0 lg:py-0 lg:pr-[max(3rem,calc(50vw-40rem))]">
+          <div className="relative pl-7 lg:pointer-events-auto lg:pl-9">
+            <span data-rule className="absolute left-0 top-1 h-[calc(clamp(2.4rem,4.1vw,4.1rem)*2)] w-[3px] rounded-full bg-orange" aria-hidden="true" />
+            <h2 id="partner-title" className="display text-[clamp(2.4rem,4.1vw,4.1rem)] text-charcoal">
+              <span className="block">
+                {TITLE_A.map((w) => (
+                  <span key={w} className="inline-block overflow-hidden pb-[0.06em] align-bottom">
+                    <span data-word className="inline-block">
+                      {w}&nbsp;
+                    </span>
                   </span>
-                </span>
-              ))}
-              {TITLE_B.map((w) => (
-                <span key={w} className="inline-block overflow-hidden pb-[0.08em] align-bottom">
-                  <span data-word className="inline-block text-orange">
-                    {w}&nbsp;
+                ))}
+              </span>
+              <span className="block">
+                {TITLE_B.map((w) => (
+                  <span key={w} className="inline-block overflow-hidden pb-[0.06em] align-bottom">
+                    <span data-word className="inline-block">
+                      {w}&nbsp;
+                    </span>
                   </span>
-                </span>
-              ))}
+                ))}
+              </span>
             </h2>
-            <p data-copy className="mt-5 max-w-sm text-[1.15rem] font-medium leading-snug text-charcoal/80">
+            <p data-copy className="mt-5 max-w-[30rem] text-[1.08rem] leading-relaxed text-charcoal/85">
               {copy.body}
             </p>
-            <div data-cta className="mt-8">
+            <div data-copy className="mt-7">
               <button type="button" className="btn-primary btn-lg" onClick={openBook} aria-haspopup="dialog">
                 {copy.cta}
                 <ArrowRight />
               </button>
             </div>
-            <p data-cta className="mt-4 max-w-sm text-xs text-charcoal-muted">
-              {copy.note}
-            </p>
           </div>
         </div>
       </div>

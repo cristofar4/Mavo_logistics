@@ -59,3 +59,18 @@ export const Pen = ({ className = 'h-4 w-4' }) => (
 export const Social = ({ className = 'h-5 w-5' }) => (
   <svg viewBox="0 0 24 24" className={className} {...base}><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" /><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6" /></svg>
 )
+export const ArrowUpRight = ({ className = 'h-4 w-4' }) => (
+  <svg viewBox="0 0 24 24" className={className} {...base} strokeWidth={2.2}><path d="M7 17L17 7M8 7h9v9" /></svg>
+)
+export const ChevronDown = ({ className = 'h-4 w-4' }) => (
+  <svg viewBox="0 0 24 24" className={className} {...base} strokeWidth={2.2}><path d="M6 9l6 6 6-6" /></svg>
+)
+export const Chat = ({ className = 'h-6 w-6' }) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="M12 4c4.97 0 9 3.13 9 7s-4.03 7-9 7c-1.1 0-2.15-.15-3.12-.43L4 19.5l1.5-3.6C4.55 14.66 3 13 3 11c0-3.87 4.03-7 9-7z" /><circle cx="8.5" cy="11" r=".9" fill="currentColor" /><circle cx="12" cy="11" r=".9" fill="currentColor" /><circle cx="15.5" cy="11" r=".9" fill="currentColor" /></svg>
+)
+export const Nodes = ({ className = 'h-6 w-6' }) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><circle cx="12" cy="5" r="2.2" /><circle cx="5" cy="18.5" r="2.2" /><circle cx="19" cy="18.5" r="2.2" /><path d="M10.9 6.9 6.1 16.6M13.1 6.9l4.8 9.7M7.2 18.5h9.6" /></svg>
+)
+export const Layers = ({ className = 'h-6 w-6' }) => (
+  <svg viewBox="0 0 24 24" className={className} {...base}><path d="M12 3l9 4.5-9 4.5-9-4.5z" /><path d="M3 12l9 4.5 9-4.5M3 16.5L12 21l9-4.5" /></svg>
+)
