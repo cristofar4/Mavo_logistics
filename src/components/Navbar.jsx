@@ -194,9 +194,11 @@ export default function Navbar() {
       <header className="fixed inset-x-0 top-0 z-50">
         <div className={`absolute inset-x-0 top-0 h-[5.25rem] transition-[background-color,box-shadow,backdrop-filter] duration-500 lg:h-[5.6rem] ${scrolled ? 'bg-ivory/80 shadow-[0_10px_30px_-22px_rgba(27,33,33,.45)] backdrop-blur-xl' : 'bg-transparent'}`} aria-hidden="true" />
         <nav aria-label="Main" className="site-x relative flex h-[5.25rem] items-center gap-3 lg:h-[5.6rem] lg:gap-4">
-          {/* Logo tab: the depot the route starts from */}
-          <a href="#top" onClick={(e) => go(e, '#top')} className="slant slant-shadow flex h-[52px] shrink-0 items-center pl-5 pr-10 lg:h-[60px] lg:pl-7 lg:pr-12" style={{ '--r': '14px', '--tip': '22px' }} aria-label="MOVA Logistics, back to top">
+          {/* Logo badge: the depot the route starts from */}
+          <a href="#top" onClick={(e) => go(e, '#top')} className="brand-card shrink-0" aria-label="MOVA Logistics, back to top">
             <Logo />
+            <span className="depot-link" aria-hidden="true" />
+            <span className="depot-node" aria-hidden="true" />
           </a>
 
           {/* Route bar */}
@@ -226,10 +228,16 @@ export default function Navbar() {
 
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
             {/* Destination: Get a quote */}
-            <button type="button" onClick={quote} className="group hidden h-[60px] items-center gap-4 rounded-full bg-orange pl-7 pr-2 text-[1.08rem] font-extrabold text-white shadow-[0_12px_26px_-14px_rgba(234,106,31,.95)] transition-[background-color,transform] duration-300 hover:-translate-y-0.5 hover:bg-orange-deep sm:flex">
-              Get a quote
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-charcoal transition-transform duration-500 ease-out group-hover:rotate-45">
-                <ArrowUpRight className="h-5 w-5" />
+            <button type="button" onClick={quote} className={`quote-pill hidden sm:flex ${active === nav.length - 1 ? 'is-arrived' : ''}`}>
+              <span className="dest-link" aria-hidden="true" />
+              <span className="dest-node" aria-hidden="true" />
+              <span className="quote-sheen" aria-hidden="true">
+                <span />
+              </span>
+              <span className="relative">Get a quote</span>
+              <span className="quote-chip" aria-hidden="true">
+                <ArrowUpRight className="quote-arrow is-out h-5 w-5" />
+                <ArrowUpRight className="quote-arrow is-in h-5 w-5" />
               </span>
             </button>
             {/* Mobile: menu button with a scroll progress ring */}
