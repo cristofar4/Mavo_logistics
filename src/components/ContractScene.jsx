@@ -159,7 +159,7 @@ export default function ContractScene() {
   const personMask = { WebkitMaskImage: `url(/images/${images.repBody.name}-800.webp)`, maskImage: `url(/images/${images.repBody.name}-800.webp)`, WebkitMaskSize: '100% 100%', maskSize: '100% 100%' }
 
   return (
-    <section id="partner" ref={root} className="relative overflow-hidden bg-[#F3ECE1] lg:h-[clamp(470px,36vw,560px)]" aria-labelledby="partner-title">
+    <section id="about" ref={root} className="relative overflow-hidden bg-[#F3ECE1] lg:h-[clamp(470px,36vw,560px)]" aria-labelledby="partner-title">
       <div className="cscene relative aspect-[4/5] w-full overflow-hidden sm:aspect-[16/11] lg:absolute lg:inset-0 lg:aspect-auto">
         <div data-wall className="cscene-wall absolute -inset-x-[3%] inset-y-0" aria-hidden="true" />
         <div data-light className="cscene-light" aria-hidden="true" />

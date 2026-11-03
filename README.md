@@ -30,13 +30,13 @@ Both the **Get a quote** form and the **partnership contract book** go through `
 
 | Section | Notes |
 | --- | --- |
-| Navigation | White logo tab, dark bar with a white highlight that slides to the section in view, Services dropdown listing all four services, orange "Get a quote" pill. Full screen mobile menu with focus trap, Escape and close button |
+| Navigation | **Route navigation.** Each section is a numbered stop on a road in page order: 01 Services, 02 Industries, 03 Our fleet, 04 About (the partnership section), 05 Contact. A small MOVA truck drives along the road as you scroll, turns round when you scroll back up, and the road behind it lights up orange. Tapping a stop scrolls to that section and moves keyboard focus there. On phones the menu button has a scroll progress ring and opens a vertical route map with "You are here" |
 | Hero | "Moving business. *Connecting* people." with the port truck in a slanted panel that bleeds off the right edge, "ROAD. AIR. SEA." and a choreographed entrance |
-| Values strip | Careful handling, Clear communication, Connected journeys (the nav's About stop) |
+| Values strip | Careful handling, Clear communication, Connected journeys |
 | Services | 01 Road freight, 02 Air freight, 03 Warehousing, 04 Sea freight in the design's mosaic. Hover, focus or touch reveals "View details"; each card opens a service panel with a quote shortcut |
 | Industries | Retail, Manufacturing, Agriculture as slanted photo cards on charcoal |
 | Our fleet | Large cargo truck photo plus Delivery vans and Heavy freight cards; hover reveals suitable cargo |
-| Partnership | The signature scene (see below) |
+| Partnership | The signature scene (see below). This is the About stop in the navigation |
 | Coverage | Dark map with glowing routes that draw in and shipments travelling along a few of them. Labelled as illustrative |
 | Process | Tell us, We plan, We deliver with circled numbers that draw in |
 | FAQ | Six questions in two columns, accessible accordion |

@@ -29,12 +29,16 @@ export const socials = [
   { label: 'Facebook', url: null },
 ]
 
+/*
+ * Navigation stops, in the same order as the sections on the page.
+ * The nav draws them as stops on a route; `desc` shows in the mobile route map.
+ */
 export const nav = [
-  { label: 'Services', href: '#services', dropdown: true },
-  { label: 'Industries', href: '#industries' },
-  { label: 'Our fleet', href: '#fleet' },
-  { label: 'About', href: '#about' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Services', href: '#services', desc: 'Road, air, sea and warehousing' },
+  { label: 'Industries', href: '#industries', desc: 'Retail, manufacturing and agriculture' },
+  { label: 'Our fleet', href: '#fleet', desc: 'Vans, cargo trucks and heavy freight' },
+  { label: 'About', href: '#about', desc: 'Meet the team and partner with us' },
+  { label: 'Contact', href: '#contact', desc: 'Get in touch and get a quote' },
 ]
 
 /*
@@ -90,7 +94,7 @@ export const hero = {
   tagline: 'Road. Air. Sea.',
 }
 
-/* The dark strip under the hero. The nav's About link points here. */
+/* The dark strip under the hero. */
 export const values = [
   { id: 'handling', title: 'Careful handling', body: 'Your goods are treated as if they were our own at every handover.' },
   { id: 'communication', title: 'Clear communication', body: 'One point of contact, plain answers and updates when they matter.' },
