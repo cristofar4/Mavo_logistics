@@ -232,6 +232,8 @@ export default function ContractBook({ open, originRef, onFinished }) {
         <CloseButton onClick={() => close(null)} label="Close the contract book" className="absolute -top-2 right-0 z-30 sm:-right-5 sm:-top-5" />
 
         <form ref={book} noValidate onSubmit={onSubmit} className="relative h-[min(740px,90dvh)] w-[min(1080px,94vw)] [transform-style:preserve-3d]">
+          {/* Honeypot: hidden from people, bots fill it and FormSubmit then drops the message */}
+          <input type="text" id={`${ID}-hp`} name="_honey" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" defaultValue="" />
           {/* Hardcover boards behind the pages. The left board only shows once the cover opens. */}
           <div className="book-board absolute inset-0 rounded-[18px] md:-inset-y-3 md:left-1/2 md:-right-3 md:rounded-l-none" aria-hidden="true" />
           <div data-board-left className="book-board absolute -inset-y-3 -left-3 right-1/2 hidden rounded-l-[18px] rounded-r-none md:block" aria-hidden="true" />
@@ -343,7 +345,7 @@ export default function ContractBook({ open, originRef, onFinished }) {
                         ? 'Signed. Demo mode, so nothing was sent.'
                         : 'Signed and sent. Thank you.'
                       : form.status === 'error'
-                        ? 'We could not send your enquiry. Please try again.'
+                        ? `We could not send your enquiry. ${form.errorMessage} Please try again.`
                         : form.touched.__all && (form.errorCount || Object.keys(extraErrors).length)
                           ? 'A few details still need your attention.'
                           : isDemoMode

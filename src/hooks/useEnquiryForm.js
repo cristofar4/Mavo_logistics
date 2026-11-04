@@ -42,7 +42,9 @@ export function useEnquiryForm({ kind, idPrefix, initial = {}, extraValidate }) 
       setStatus('submitting')
       setErrorMessage('')
       try {
-        const res = await submitEnquiry(kind, { ...values, ...extra })
+        // Hidden honeypot field: people never fill it, spam bots usually do.
+        const honey = document.getElementById(`${idPrefix}-hp`)?.value || ''
+        const res = await submitEnquiry(kind, { ...values, ...extra, honey })
         setStatus(res.status)
         return res.status
       } catch (err) {

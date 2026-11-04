@@ -246,6 +246,8 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
           </div>
         ) : (
           <form noValidate onSubmit={onSubmit} className="flex flex-1 flex-col">
+            {/* Honeypot: hidden from people, bots fill it and FormSubmit then drops the message */}
+            <input type="text" id={`${idPrefix}-hp`} name="_honey" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" defaultValue="" />
             {/* Sticky step bar: the close button sits on it, so content never scrolls under the X */}
             <div className="sticky top-0 z-10 bg-ivory/90 px-6 pb-4 pt-[22px] backdrop-blur-md sm:px-10 sm:pt-[26px]">
               <div className="flex items-center gap-3 pr-14">

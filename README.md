@@ -13,20 +13,23 @@ npm run preview    # serve the production build at http://localhost:4173
 
 Requires Node 18 or newer.
 
-## Connecting the forms
+## How the forms send email
 
-Both the **Get a quote** planner and the **partnership contract book** go through `src/lib/submitEnquiry.js`.
+Both the **Get a quote** planner and the **partnership contract book** are connected through `src/lib/submitEnquiry.js` and email every enquiry to the address in `src/content/site.js` (`forms.formsubmit`), using [FormSubmit](https://formsubmit.co): free, no account and no server.
 
-The quote planner is a three step dialog (**Your cargo**, **The route**, **Your details**) with a route panel showing progress. Each step is validated before moving on, services are picked from photo cards, pickup and destination are drawn as the two ends of a route, and the result is shown as a shipment ticket.
+**One time activation (required):**
 
-* With no endpoint configured the forms run in **demonstration mode**. They show a visible "Demonstration form" notice, validate every field, and never claim a submission was sent.
-* To receive real enquiries, copy `.env.example` to `.env` and set:
+1. Open the live site and send one test enquiry.
+2. FormSubmit emails that address a message with an **Activate Form** button. Click it (check spam if it is not in the inbox).
+3. From then on every quote request and partnership enquiry arrives as an email with a clear subject (for example "New quote request from Grace Hopper") and all the details in a table. Reply goes straight to the customer.
 
-  ```
-  VITE_FORM_ENDPOINT=https://formspree.io/f/your-id
-  ```
+Until the form is activated, visitors see an honest message that it could not be delivered yet; the site never shows a false success.
 
-  Any service that accepts a JSON `POST` works (Formspree, Basin, Getform, a serverless function or your own API). The payload contains `kind` (`quote` or `partnership`), `submittedAt` and the form fields. Partnership enquiries also include `signatureTyped`, `signatureImage` (PNG data URL) and `consent`.
+**Optional, keep the address private:** after activating, FormSubmit shows a random alias string. Put that alias in `forms.formsubmit` instead of the email address so the address is not visible in the site code.
+
+**Other settings:** set `VITE_FORMSUBMIT_TARGET` (an email or alias) in Vercel to override the address without changing code, or set `VITE_FORM_ENDPOINT` to post enquiries as JSON to your own backend instead. Spam protection: a hidden honeypot field is sent with each enquiry and FormSubmit discards anything that fills it.
+
+The quote planner is a three step dialog (**Your cargo**, **The route**, **Your details**) with a route panel showing progress, service photo cards, a route card for pickup and destination, and a shipment ticket at the end.
 
 ## What is on the page (in design order)
 

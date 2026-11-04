@@ -22,6 +22,16 @@ export const contact = {
   address: null, // e.g. '12 Harbour Road, Port City'
 }
 
+/*
+ * Where quote requests and partnership enquiries are emailed, through FormSubmit (formsubmit.co).
+ * The very first enquiry makes FormSubmit send an "Activate form" email to this address: click it
+ * once and every enquiry after that arrives in the inbox. After activating, FormSubmit also shows a
+ * private random alias: put that here instead of the address to keep the address out of the site code.
+ */
+export const forms = {
+  formsubmit: 'christopherpraise159@gmail.com',
+}
+
 /* Social profiles. Only entries with a url are rendered. */
 export const socials = [
   { label: 'LinkedIn', url: null },
