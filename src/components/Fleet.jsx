@@ -43,7 +43,7 @@ export default function Fleet() {
   )
 
   return (
-    <section id="fleet" ref={root} className="relative bg-ivory py-12 sm:py-14 lg:py-16" aria-labelledby="fleet-title">
+    <section id="fleet" ref={root} className="relative overflow-hidden bg-ivory py-12 sm:py-14 lg:py-16" aria-labelledby="fleet-title">
       <div className="site-x">
         <div data-head className="mb-7">
           <p className="eyebrow mb-2">Our fleet</p>

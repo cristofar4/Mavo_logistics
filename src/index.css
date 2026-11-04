@@ -18,6 +18,11 @@
       scroll-behavior: smooth;
     }
   }
+  /* Nothing may widen the page: on phones a wider page also widens the fixed nav and lets the view drift */
+  html,
+  main {
+    overflow-x: clip;
+  }
   html.scroll-locked {
     overflow: hidden;
     padding-right: var(--scrollbar-gap, 0px);
@@ -152,15 +157,15 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.95),
       0 0 0 1px rgba(27, 33, 33, 0.07),
       0 18px 40px -22px rgba(27, 33, 33, 0.35);
-    backdrop-filter: blur(20px) saturate(1.7);
     -webkit-backdrop-filter: blur(20px) saturate(1.7);
+    backdrop-filter: blur(20px) saturate(1.7);
     transition:
       max-width 650ms cubic-bezier(0.22, 1, 0.36, 1),
       height 450ms cubic-bezier(0.22, 1, 0.36, 1),
       border-radius 450ms ease,
-      background-color 500ms ease,
-      box-shadow 500ms ease,
-      color 500ms ease;
+      background-color 140ms ease-out,
+      box-shadow 140ms ease-out,
+      color 140ms ease-out;
   }
   .dock.on-dark {
     @apply text-white;
@@ -243,7 +248,7 @@
       height 450ms ease,
       margin 450ms ease,
       opacity 300ms ease,
-      background-color 500ms ease;
+      background-color 140ms ease-out;
   }
   .dock.is-compact .dock-tab,
   .dock.is-compact .dock-glow {
@@ -336,7 +341,7 @@
     animation: readoutIn 450ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .dock-menu {
-    @apply relative flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-[14px] outline-none transition-colors duration-500;
+    @apply relative flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-[14px] outline-none transition-colors duration-150;
     background: var(--tab-bg);
     color: var(--tab-fg);
   }
@@ -354,7 +359,7 @@
     border-radius: 2px;
     background: var(--rail);
     pointer-events: none;
-    transition: background-color 500ms ease;
+    transition: background-color 140ms ease-out;
   }
   .dock-rail-fill {
     position: absolute;
@@ -388,7 +393,7 @@
     transform: translateX(-50%);
     will-change: transform;
     filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.35));
-    transition: color 500ms ease;
+    transition: color 140ms ease-out;
   }
   .dock.on-dark .dock-truck {
     color: #fff;
@@ -780,8 +785,8 @@
       inset 0 1px 0 #fff,
       0 0 0 1px rgba(27, 33, 33, 0.09),
       0 10px 22px -12px rgba(27, 33, 33, 0.55);
-    backdrop-filter: blur(10px) saturate(1.4);
     -webkit-backdrop-filter: blur(10px) saturate(1.4);
+    backdrop-filter: blur(10px) saturate(1.4);
     transition:
       background-color 300ms ease,
       color 300ms ease,
