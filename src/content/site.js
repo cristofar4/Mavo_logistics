@@ -231,6 +231,8 @@ export const contractScene = {
   bubbleYes: 'Yes, let’s go',
   bubbleNo: 'Not yet',
   bubbleLater: 'No rush. I will be right here when you are ready.',
+  bubbleSending: 'Sending your enquiry…',
+  bubbleFailed: 'Sorry, that did not go through yet.',
   bubbleThanks: 'Thank you for booking with us! We will get back to you soon.',
   bubbleThanksDemo: 'Thank you for signing! This was a demo, so nothing was sent yet.',
   note: 'Signing opens a partnership enquiry. It is not a binding contract.',

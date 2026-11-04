@@ -48,6 +48,25 @@ function emailPayload(kind, d) {
   return fields
 }
 
+/*
+ * Open the connection to the email service ahead of time (DNS, TCP and TLS), so pressing send
+ * only has to transfer the message. Called when a visitor reaches the last step of a form.
+ */
+let warmedAt = 0
+export function warmUp() {
+  if (!ENDPOINT || Date.now() - warmedAt < 8000) return
+  warmedAt = Date.now()
+  try {
+    const link = document.createElement('link')
+    link.rel = 'preconnect'
+    link.href = new URL(ENDPOINT).origin
+    link.crossOrigin = 'anonymous'
+    document.head.appendChild(link)
+  } catch {
+    /* preconnect is only an optimisation */
+  }
+}
+
 export async function submitEnquiry(kind, data) {
   if (!ENDPOINT) {
     await new Promise((r) => setTimeout(r, 700))
@@ -55,17 +74,30 @@ export async function submitEnquiry(kind, data) {
   }
 
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), 20000)
+  const timer = setTimeout(() => controller.abort(), 45000)
   let res
   try {
-    res = await fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(usesFormSubmit ? emailPayload(kind, data) : { kind, submittedAt: new Date().toISOString(), ...data }),
-      signal: controller.signal,
-    })
+    res = await fetch(
+      ENDPOINT,
+      usesFormSubmit
+        ? {
+            // Form encoded with a simple Accept header: no CORS preflight, so one round trip instead of two.
+            // keepalive lets the message finish sending even if the visitor closes the page.
+            method: 'POST',
+            headers: { Accept: 'application/json' },
+            body: new URLSearchParams(emailPayload(kind, data)),
+            keepalive: true,
+            signal: controller.signal,
+          }
+        : {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ kind, submittedAt: new Date().toISOString(), ...data }),
+            signal: controller.signal,
+          },
+    )
   } catch (err) {
-    throw new Error(err?.name === 'AbortError' ? 'The connection timed out.' : 'Please check your internet connection.')
+    throw new Error(err?.name === 'AbortError' ? 'The email service did not answer in time.' : 'Please check your internet connection.')
   } finally {
     clearTimeout(timer)
   }

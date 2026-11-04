@@ -25,6 +25,8 @@ Both the **Get a quote** planner and the **partnership contract book** are conne
 
 Until the form is activated, visitors see an honest message that it could not be delivered yet; the site never shows a false success.
 
+**Speed:** sending never makes the visitor wait. The connection to FormSubmit is opened in advance while the visitor fills in the last step, each enquiry is one form encoded request (no extra preflight round trip) sent with `keepalive` so it finishes even if the page is closed, and the interface moves on straight away: the quote planner shows its ticket as "Sending…" until FormSubmit confirms, and the contract book stamps its seal and closes at once while the representative's cloud says "Sending your enquiry…", then thanks the visitor or offers **Try again** and **Edit enquiry** if delivery failed.
+
 **Optional, keep the address private:** after activating, FormSubmit shows a random alias string. Put that alias in `forms.formsubmit` instead of the email address so the address is not visible in the site code.
 
 **Other settings:** set `VITE_FORMSUBMIT_TARGET` (an email or alias) in Vercel to override the address without changing code, or set `VITE_FORM_ENDPOINT` to post enquiries as JSON to your own backend instead. Spam protection: a hidden honeypot field is sent with each enquiry and FormSubmit discards anything that fills it.

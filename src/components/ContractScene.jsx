@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { contractScene as copy, images, representativeGeometry as geo, representativeVideo } from '../content/site'
 import { gsap, ScrollTrigger, useGSAP, MOTION_OK } from '../lib/gsap'
+import { submitEnquiry } from '../lib/submitEnquiry'
 import Img from './Img'
 import CloudBubble from './CloudBubble'
 import ContractBook from './ContractBook'
@@ -138,17 +139,54 @@ export default function ContractScene() {
     gsap.fromTo(bubbleRef.current.querySelector('[data-cloud]'), { scale: 0.92 }, { scale: 1, duration: 0.45, ease: 'back.out(2)' })
   }
 
+  const bookOpenRef = useRef(false)
+  const resetAfterClose = useRef(false)
   const openBook = () => {
+    bookOpenRef.current = true
     setBookOpen(true)
     setAnnounce('Contract book opened.')
   }
 
+  /*
+   * The book hands over the signed enquiry and closes at once; it is sent here in the background.
+   * The cloud shows "Sending" until the email service confirms, then thanks, or offers to try again.
+   */
+  const lastEnquiry = useRef(null)
+  const [bookKey, setBookKey] = useState(0)
+  const [sendError, setSendError] = useState('')
+  const deliver = useCallback((enquiry) => {
+    lastEnquiry.current = enquiry
+    setBubble('sending')
+    setAnnounce(copy.bubbleSending)
+    submitEnquiry('partnership', enquiry)
+      .then((res) => {
+        const demo = res.status === 'demo'
+        setBubble(demo ? 'thanksDemo' : 'thanks')
+        setAnnounce(demo ? copy.bubbleThanksDemo : copy.bubbleThanks)
+        // A fresh, empty book for the next enquiry, once the current one has finished closing.
+        if (bookOpenRef.current) resetAfterClose.current = true
+        else setBookKey((k) => k + 1)
+      })
+      .catch((err) => {
+        setSendError(err?.message || '')
+        setBubble('failed')
+        setAnnounce(`${copy.bubbleFailed} ${err?.message || ''}`)
+      })
+      .finally(() => requestAnimationFrame(popBubble))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const onFinished = useCallback((result) => {
+    bookOpenRef.current = false
     setBookOpen(false)
-    if (result === 'sent') setBubble('thanks')
-    else if (result === 'demo') setBubble('thanksDemo')
-    else setBubble('later')
-    setAnnounce(result === 'sent' ? copy.bubbleThanks : result === 'demo' ? copy.bubbleThanksDemo : copy.bubbleLater)
+    if (resetAfterClose.current) {
+      resetAfterClose.current = false
+      setBookKey((k) => k + 1)
+    }
+    if (result === null) {
+      setBubble('later')
+      setAnnounce(copy.bubbleLater)
+    }
     requestAnimationFrame(popBubble)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -159,7 +197,7 @@ export default function ContractScene() {
     requestAnimationFrame(popBubble)
   }
 
-  const bubbleText = { hello: copy.hello, ask: copy.bubble, later: copy.bubbleLater, thanks: copy.bubbleThanks, thanksDemo: copy.bubbleThanksDemo }[bubble]
+  const bubbleText = { hello: copy.hello, ask: copy.bubble, later: copy.bubbleLater, sending: copy.bubbleSending, failed: copy.bubbleFailed, thanks: copy.bubbleThanks, thanksDemo: copy.bubbleThanksDemo }[bubble]
   const ct = geo.contract
   const personMask = { WebkitMaskImage: `url(/images/${images.repWorker.name}-800.webp)`, maskImage: `url(/images/${images.repWorker.name}-800.webp)`, WebkitMaskSize: '100% 100%', maskSize: '100% 100%' }
 
@@ -208,7 +246,7 @@ export default function ContractScene() {
           <div data-bubble ref={bubbleRef}>
             <div data-bubble-float>
               <CloudBubble className="drop-shadow-[0_16px_24px_rgba(27,33,33,.16)]">
-                <p className={`font-extrabold leading-[1.1] tracking-[-0.025em] text-charcoal ${bubble === 'hello' || bubble === 'ask' ? 'text-[clamp(1.15rem,1.9vw,1.55rem)]' : 'text-[clamp(0.85rem,1.2vw,1rem)]'}`}>
+                <p className={`font-extrabold leading-[1.1] tracking-[-0.025em] text-charcoal ${bubble === 'hello' || bubble === 'ask' || bubble === 'sending' ? 'text-[clamp(1.15rem,1.9vw,1.55rem)]' : 'text-[clamp(0.85rem,1.2vw,1rem)]'}`}>
                   {bubbleText}
                 </p>
               </CloudBubble>
@@ -229,6 +267,25 @@ export default function ContractScene() {
                     I’m ready
                     <ArrowRight className="h-3.5 w-3.5" />
                   </button>
+                </div>
+              )}
+              {bubble === 'sending' && (
+                <div className="bubble-replies">
+                  <span data-chip className="bubble-chip !cursor-default">
+                    <span className="quote-spinner" aria-hidden="true" />
+                    One moment
+                  </span>
+                </div>
+              )}
+              {bubble === 'failed' && (
+                <div className="bubble-replies" role="group" aria-label="Your enquiry was not sent">
+                  <button type="button" data-chip className="bubble-chip bubble-chip-yes" onClick={() => deliver(lastEnquiry.current)}>
+                    Try again
+                  </button>
+                  <button type="button" data-chip className="bubble-chip" onClick={openBook} aria-haspopup="dialog">
+                    Edit enquiry
+                  </button>
+                  {sendError && <span className="sr-only">{sendError}</span>}
                 </div>
               )}
               {(bubble === 'thanks' || bubble === 'thanksDemo') && (
@@ -285,7 +342,7 @@ export default function ContractScene() {
         {announce}
       </p>
 
-      <ContractBook open={bookOpen} originRef={bookOrigin} onFinished={onFinished} />
+      <ContractBook key={bookKey} open={bookOpen} originRef={bookOrigin} onFinished={onFinished} onSend={deliver} />
     </section>
   )
 }

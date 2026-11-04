@@ -4,7 +4,7 @@ import { gsap, prefersReducedMotion } from '../lib/gsap'
 import { useEnquiryForm } from '../hooks/useEnquiryForm'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { useScrollLock } from '../hooks/useScrollLock'
-import { isDemoMode } from '../lib/submitEnquiry'
+import { isDemoMode, warmUp } from '../lib/submitEnquiry'
 import EnquiryFields from './EnquiryFields'
 import ServicePicker from './ServicePicker'
 import DemoNotice from './DemoNotice'
@@ -38,7 +38,7 @@ function Clause({ no, children }) {
  * onFinished(result) runs after the closing animation: 'sent' | 'demo' | null (cancelled).
  * It is an enquiry, not a contract, and the pages say so.
  */
-export default function ContractBook({ open, originRef, onFinished }) {
+export default function ContractBook({ open, originRef, onFinished, onSend }) {
   const [mounted, setMounted] = useState(false)
   const [sealed, setSealed] = useState(false)
   const overlay = useRef(null)
@@ -48,7 +48,9 @@ export default function ContractBook({ open, originRef, onFinished }) {
   const right = useRef(null)
   const dialogRef = useRef(null)
   const sig = useRef(null)
-  const busy = useRef(false)
+  // idle | opening | sealing | closing
+  const phase = useRef('idle')
+  const openTl = useRef(null)
   const [sigEmpty, setSigEmpty] = useState(true)
   const [typedSig, setTypedSig] = useState('')
   const [consent, setConsent] = useState(false)
@@ -64,7 +66,10 @@ export default function ContractBook({ open, originRef, onFinished }) {
   const extraErrors = form.touched.__all ? extraValidate() : {}
 
   useEffect(() => {
-    if (open) setMounted(true)
+    if (open) {
+      setMounted(true)
+      warmUp()
+    }
   }, [open])
 
   useScrollLock(mounted)
@@ -89,14 +94,14 @@ export default function ContractBook({ open, originRef, onFinished }) {
     const desktop = window.matchMedia('(min-width: 768px)').matches
     const q = gsap.utils.selector(book.current)
     const fields = q('[data-page-item]')
-    busy.current = true
+    phase.current = 'opening'
     setSealed(false)
 
     if (prefersReducedMotion()) {
       gsap.set(overlay.current, { autoAlpha: 1 })
       gsap.set([cover.current, q('[data-leaf]')], { autoAlpha: 0 })
       gsap.set([left.current, right.current, book.current, q('[data-board-left]')], { autoAlpha: 1 })
-      busy.current = false
+      phase.current = 'idle'
       document.getElementById(`${ID}-name`)?.focus({ preventScroll: true })
       return
     }
@@ -104,10 +109,11 @@ export default function ContractBook({ open, originRef, onFinished }) {
     const start = fromOrigin()
     const tl = gsap.timeline({
       onComplete: () => {
-        busy.current = false
+        phase.current = 'idle'
         document.getElementById(`${ID}-name`)?.focus({ preventScroll: true })
       },
     })
+    openTl.current = tl
     gsap.set(cover.current, { rotationY: 0, autoAlpha: 1, transformPerspective: 2400 })
     gsap.set(left.current, { autoAlpha: desktop ? 0 : 1 })
     gsap.set(q('[data-board-left]'), { autoAlpha: 0 })
@@ -151,15 +157,20 @@ export default function ContractBook({ open, originRef, onFinished }) {
   /* Closing sequence: close the cover, fly back to the representative, then report the result. */
   const close = useCallback(
     (result) => {
-      if (!book.current || (busy.current && result === null)) return
-      busy.current = true
+      if (!book.current || phase.current === 'closing') return
+      if (result === null && phase.current === 'sealing') return
+      // Closing is allowed at any moment, even while the book is still opening.
+      if (phase.current === 'opening') {
+        openTl.current?.kill()
+        gsap.set(book.current.querySelectorAll('[data-leaf]'), { autoAlpha: 0 })
+        gsap.set(book.current, { x: 0, y: 0, scale: 1, rotation: 0, rotationX: 0, autoAlpha: 1 })
+      }
+      phase.current = 'closing'
+      // The details stay in the book (so "Edit enquiry" reopens it filled in); the drawn signature does not.
       const done = () => {
-        busy.current = false
+        phase.current = 'idle'
         setMounted(false)
         setSealed(false)
-        form.reset()
-        setTypedSig('')
-        setConsent(false)
         setSigEmpty(true)
         onFinished?.(result)
       }
@@ -170,18 +181,18 @@ export default function ContractBook({ open, originRef, onFinished }) {
       const desktop = window.matchMedia('(min-width: 768px)').matches
       const q = gsap.utils.selector(book.current)
       const tl = gsap.timeline({ onComplete: done })
-      tl.to(q('[data-ribbon]'), { scaleY: 0, duration: 0.3, ease: 'power2.in' })
-        .to(q('[data-page-item]'), { autoAlpha: 0, y: -8, duration: 0.25, stagger: 0.01 }, '<')
+      tl.to(q('[data-ribbon]'), { scaleY: 0, duration: 0.18, ease: 'power2.in' })
+        .to(q('[data-page-item]'), { autoAlpha: 0, y: -8, duration: 0.18 }, '<')
         .set(cover.current, { autoAlpha: 1 })
       if (desktop) tl.set(left.current, { autoAlpha: 0 })
-      tl.to(cover.current, { rotationY: 0, duration: 0.85, ease: 'power2.inOut' })
-        .to(q('[data-board-left]'), { autoAlpha: 0, duration: 0.3 }, '<0.3')
+      tl.to(cover.current, { rotationY: 0, duration: 0.5, ease: 'power2.inOut' })
+        .to(q('[data-board-left]'), { autoAlpha: 0, duration: 0.2 }, '<0.15')
         .add(() => {
           const t = fromOrigin()
-          gsap.to(book.current, { x: t.x, y: t.y, scale: t.scale, rotation: -6, rotationX: 16, duration: 0.85, ease: 'power3.inOut' })
-          gsap.to(book.current, { autoAlpha: 0, duration: 0.3, delay: 0.6 })
-        }, '+=0.1')
-        .to(overlay.current, { autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, '+=0.5')
+          gsap.to(book.current, { x: t.x, y: t.y, scale: t.scale, rotation: -6, rotationX: 16, duration: 0.55, ease: 'power3.inOut' })
+          gsap.to(book.current, { autoAlpha: 0, duration: 0.2, delay: 0.38 })
+        }, '>-0.08')
+        .to(overlay.current, { autoAlpha: 0, duration: 0.32, ease: 'power2.inOut' }, '>0.22')
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [form, onFinished],
@@ -197,32 +208,38 @@ export default function ContractBook({ open, originRef, onFinished }) {
         const seal = q('[data-seal]')
         q('[data-seal-anchor]')[0]?.scrollIntoView({ block: 'center', behavior: 'smooth' })
         gsap
-          .timeline({ onComplete: () => setTimeout(resolve, 650), delay: 0.25 })
+          .timeline({ onComplete: () => setTimeout(resolve, 120), delay: 0.03 })
           .fromTo(seal, { scale: 2.6, rotation: -35, autoAlpha: 0, y: -40 }, { scale: 1, rotation: -12, autoAlpha: 1, y: 0, duration: 0.42, ease: 'power4.in' })
           .fromTo(book.current, { x: 0 }, { x: 4, duration: 0.05, repeat: 3, yoyo: true, ease: 'none' })
           .fromTo(q('[data-seal-ring]'), { scale: 0.8, autoAlpha: 0.7 }, { scale: 1.8, autoAlpha: 0, duration: 0.6, ease: 'power2.out' }, '<')
       })
     })
 
-  const onSubmit = async (e) => {
+  /*
+   * Signing never waits for the network: once everything is valid the enquiry is handed to the scene,
+   * which sends it in the background, while the seal stamps and the book closes straight away.
+   * The cloud then reports the real outcome: sending, thank you, or try again.
+   */
+  const onSubmit = (e) => {
     e.preventDefault()
-    if (busy.current) return
-    const status = await form.submit({
+    if (phase.current !== 'idle') return
+    if (!form.validateAll(extraValidate())) return
+    phase.current = 'sealing'
+    onSend?.({
+      ...form.values,
       signatureTyped: typedSig.trim() || null,
       signatureImage: !sigEmpty && sig.current ? sig.current.toDataURL() : null,
       consent,
+      honey: form.honeypot(),
     })
-    if (status === 'sent' || status === 'demo') {
-      busy.current = true
-      await stamp()
-      busy.current = false
-      close(status)
-    }
+    stamp().then(() => {
+      phase.current = 'idle'
+      close('sending')
+    })
   }
 
   if (!mounted) return null
 
-  const submitting = form.status === 'submitting'
 
   return createPortal(
     <div ref={overlay} className="fixed inset-0 z-[90] flex items-center justify-center overflow-hidden p-3 sm:p-6" style={{ visibility: 'hidden' }}>
@@ -303,7 +320,7 @@ export default function ContractBook({ open, originRef, onFinished }) {
                       <span data-seal-ring className="absolute inset-0 rounded-full border-2 border-orange" />
                       <div data-seal className="seal relative flex flex-col items-center justify-center text-white">
                         <LogoMark className="h-7 w-auto text-white" />
-                        <span className="mt-1 text-[0.55rem] font-extrabold uppercase tracking-[0.22em]">Received</span>
+                        <span className="mt-1 text-[0.55rem] font-extrabold uppercase tracking-[0.22em]">Signed</span>
                       </div>
                     </div>
                   )}
@@ -342,18 +359,16 @@ export default function ContractBook({ open, originRef, onFinished }) {
                   <p className="text-xs text-charcoal-muted" aria-live="polite">
                     {sealed
                       ? isDemoMode
-                        ? 'Signed. Demo mode, so nothing was sent.'
-                        : 'Signed and sent. Thank you.'
-                      : form.status === 'error'
-                        ? `We could not send your enquiry. ${form.errorMessage} Please try again.`
-                        : form.touched.__all && (form.errorCount || Object.keys(extraErrors).length)
+                        ? 'Signed. Demo mode, so nothing will be sent.'
+                        : 'Signed. Sending it now.'
+                      : form.touched.__all && (form.errorCount || Object.keys(extraErrors).length)
                           ? 'A few details still need your attention.'
                           : isDemoMode
                             ? 'Demo mode: nothing will be sent.'
                             : 'We reply to every enquiry.'}
                   </p>
-                  <button type="submit" className="btn-primary" disabled={submitting || sealed}>
-                    {submitting ? 'Signing' : isDemoMode ? 'Sign and finish demo' : 'Sign and send'}
+                  <button type="submit" className="btn-primary" disabled={sealed} onPointerEnter={warmUp} onFocus={warmUp}>
+                    {isDemoMode ? 'Sign and finish demo' : 'Sign and send'}
                     <ArrowRight />
                   </button>
                 </div>

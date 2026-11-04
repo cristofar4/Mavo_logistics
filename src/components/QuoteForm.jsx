@@ -1,8 +1,8 @@
-import { useId, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { images, serviceOptions } from '../content/site'
 import { useEnquiryForm } from '../hooks/useEnquiryForm'
 import { gsap, prefersReducedMotion } from '../lib/gsap'
-import { isDemoMode } from '../lib/submitEnquiry'
+import { isDemoMode, warmUp } from '../lib/submitEnquiry'
 import EnquiryFields from './EnquiryFields'
 import ServicePicker from './ServicePicker'
 import Img from './Img'
@@ -97,10 +97,20 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
   const idPrefix = `quote${useId().replace(/:/g, '')}`
   const form = useEnquiryForm({ kind: 'quote', idPrefix, initial: { service: initialService } })
   const [step, setStep] = useState(0)
+  const [attempted, setAttempted] = useState(false)
   const stage = useRef(null)
   const firstRender = useRef(true)
   const { status, values } = form
   const done = status === 'demo' || status === 'sent'
+  // The ticket appears the moment the visitor presses send: "Sending" first, then confirmed or failed.
+  const sending = attempted && status === 'submitting'
+  const failed = attempted && status === 'error'
+  const showTicket = done || sending || failed
+
+  // Open the connection to the email service while the visitor fills in the last step.
+  useEffect(() => {
+    if (step === STEPS.length - 1) warmUp()
+  }, [step])
 
   // Slide the step content in when the step changes.
   useLayoutEffect(() => {
@@ -112,7 +122,7 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
     if (!prefersReducedMotion()) gsap.fromTo(stage.current.children, { autoAlpha: 0, x: 26 }, { autoAlpha: 1, x: 0, duration: 0.45, stagger: 0.05, ease: 'power3.out' })
     const first = stage.current.querySelector('input:not([type=radio]), textarea, input[type=radio]')
     first?.focus({ preventScroll: true })
-  }, [step, done])
+  }, [step, showTicket])
 
   const stepErrors = (i) => STEPS[i].fields.filter((f) => form.errors[f])
 
@@ -129,12 +139,19 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
   const onSubmit = async (e) => {
     e.preventDefault()
     if (step < STEPS.length - 1) return next()
+    setAttempted(true)
     await form.submit()
   }
 
   const restart = () => {
     form.reset()
+    setAttempted(false)
     setStep(0)
+  }
+
+  const editDetails = () => {
+    setAttempted(false)
+    setStep(STEPS.length - 1)
   }
 
   const serviceLabel = serviceOptions.find((o) => o.value === values.service)?.label || 'Not chosen'
@@ -154,9 +171,9 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
 
           <ol className="quote-route mt-6 md:mt-9" aria-label="Steps">
             {STEPS.map((s, i) => {
-              const state = done || i < step ? 'is-done' : i === step ? 'is-current' : ''
+              const state = showTicket || i < step ? 'is-done' : i === step ? 'is-current' : ''
               return (
-                <li key={s.key} className={`quote-route-step ${state}`} aria-current={!done && i === step ? 'step' : undefined}>
+                <li key={s.key} className={`quote-route-step ${state}`} aria-current={!showTicket && i === step ? 'step' : undefined}>
                   <span className="quote-route-dot" aria-hidden="true">
                     {state === 'is-done' ? <Check className="h-3.5 w-3.5" /> : i + 1}
                   </span>
@@ -185,12 +202,18 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
 
       {/* Steps */}
       <div className="relative flex min-h-0 flex-col bg-ivory md:overflow-y-auto md:overscroll-contain">
-        {done ? (
+        {showTicket ? (
           <div ref={stage} className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-10" role="status" aria-live="polite">
-            <p className="eyebrow">{status === 'sent' ? 'Request received' : 'Demo complete'}</p>
-            <h3 className="mt-2 text-[1.9rem] font-extrabold leading-tight tracking-[-0.03em] text-charcoal">{status === 'sent' ? 'Thank you. We are on it.' : 'Your request is ready.'}</h3>
+            <p className={`eyebrow ${failed ? '!text-orange-deep' : ''}`}>{sending ? 'Sending' : failed ? 'Not sent yet' : status === 'sent' ? 'Request received' : 'Demo complete'}</p>
+            <h3 className="mt-2 text-[1.9rem] font-extrabold leading-tight tracking-[-0.03em] text-charcoal">
+              {sending ? 'Sending your request…' : failed ? 'We could not send it yet.' : status === 'sent' ? 'Thank you. We are on it.' : 'Your request is ready.'}
+            </h3>
             <p className="mt-2 max-w-md text-[0.95rem] text-charcoal/75">
-              {status === 'sent' ? (
+              {sending ? (
+                'This only takes a moment.'
+              ) : failed ? (
+                `${form.errorMessage} Your details are still here, so you can try again.`
+              ) : status === 'sent' ? (
                 'Our team will review your shipment and reply with a plan and a price.'
               ) : (
                 <>
@@ -200,7 +223,7 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
             </p>
 
             {/* Ticket */}
-            <div className="quote-ticket mt-7">
+            <div className={`quote-ticket mt-7 ${sending ? 'is-sending' : ''} ${failed ? 'is-failed' : ''}`}>
               <div className="flex items-center justify-between gap-4 px-6 pt-5">
                 <span className="text-[0.68rem] font-extrabold uppercase tracking-[0.22em] text-charcoal/50">Shipment request</span>
                 <span className="rounded-full bg-orange/10 px-2.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-orange-deep">{serviceLabel}</span>
@@ -235,13 +258,31 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
               </dl>
             </div>
 
-            <div className="mt-7 flex flex-wrap gap-3">
-              <button type="button" className="btn-primary" onClick={onDone}>
-                Close
-              </button>
-              <button type="button" className="btn-ghost" onClick={restart}>
-                Start a new request
-              </button>
+            <div className="mt-7 flex min-h-[46px] flex-wrap items-center gap-3">
+              {sending ? (
+                <span className="flex items-center gap-2.5 text-sm font-bold text-charcoal/60">
+                  <span className="quote-spinner" aria-hidden="true" />
+                  Sending to the MOVA team
+                </span>
+              ) : failed ? (
+                <>
+                  <button type="button" className="btn-primary" onClick={() => form.submit()}>
+                    Try again
+                  </button>
+                  <button type="button" className="btn-ghost" onClick={editDetails}>
+                    Edit details
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button type="button" className="btn-primary" onClick={onDone}>
+                    Close
+                  </button>
+                  <button type="button" className="btn-ghost" onClick={restart}>
+                    Start a new request
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ) : (
@@ -299,8 +340,8 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
               ) : (
                 <span className="text-xs text-charcoal/55">Takes about a minute</span>
               )}
-              <button type="submit" className="btn-primary" disabled={status === 'submitting'}>
-                {step < STEPS.length - 1 ? 'Continue' : status === 'submitting' ? 'Checking details' : 'Request my quote'}
+              <button type="submit" className="btn-primary" disabled={status === 'submitting'} onPointerEnter={warmUp} onFocus={warmUp}>
+                {step < STEPS.length - 1 ? 'Continue' : 'Request my quote'}
                 <ArrowRight />
               </button>
             </div>
