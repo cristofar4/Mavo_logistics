@@ -1,72 +1,251 @@
-import { useId } from 'react'
-import EnquiryFields from './EnquiryFields'
-import DemoNotice from './DemoNotice'
+import { useId, useLayoutEffect, useRef, useState } from 'react'
+import { images, serviceOptions } from '../content/site'
 import { useEnquiryForm } from '../hooks/useEnquiryForm'
-import { ArrowRight } from './Icons'
+import { gsap, prefersReducedMotion } from '../lib/gsap'
+import { isDemoMode } from '../lib/submitEnquiry'
+import EnquiryFields from './EnquiryFields'
+import ServicePicker from './ServicePicker'
+import Img from './Img'
+import Logo from './Logo'
+import { ArrowRight, Box, Check, Close } from './Icons'
 
-export default function QuoteForm({ initialService = '', onDone }) {
+/*
+ * Quote planner: three short steps with a route panel beside them, then a booking ticket summary.
+ *   1 What are we moving   service cards and cargo details
+ *   2 Where is it going    pickup, destination and preferred date
+ *   3 Who should we reply  name, company, email and phone
+ * Each step is validated before moving on. With no form service connected the ticket says
+ * plainly that nothing was sent.
+ */
+const STEPS = [
+  { key: 'what', label: 'What are we moving?', short: 'Your cargo', fields: ['service', 'cargo'] },
+  { key: 'where', label: 'Where is it going?', short: 'The route', fields: ['pickup', 'destination', 'date'] },
+  { key: 'who', label: 'Who should we reply to?', short: 'Your details', fields: ['name', 'company', 'email', 'phone'] },
+]
+
+function formatDate(v) {
+  if (!v) return 'Flexible'
+  const d = new Date(`${v}T12:00:00`)
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+export default function QuoteForm({ initialService = '', onDone, titleId }) {
   const idPrefix = `quote${useId().replace(/:/g, '')}`
   const form = useEnquiryForm({ kind: 'quote', idPrefix, initial: { service: initialService } })
-  const { status } = form
+  const [step, setStep] = useState(0)
+  const stage = useRef(null)
+  const firstRender = useRef(true)
+  const { status, values } = form
+  const done = status === 'demo' || status === 'sent'
+
+  // Slide the step content in when the step changes.
+  useLayoutEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false
+      return
+    }
+    if (!stage.current) return
+    if (!prefersReducedMotion()) gsap.fromTo(stage.current.children, { autoAlpha: 0, x: 26 }, { autoAlpha: 1, x: 0, duration: 0.45, stagger: 0.05, ease: 'power3.out' })
+    const first = stage.current.querySelector('input:not([type=radio]), textarea, input[type=radio]')
+    first?.focus({ preventScroll: true })
+  }, [step, done])
+
+  const stepErrors = (i) => STEPS[i].fields.filter((f) => form.errors[f])
+
+  const next = () => {
+    STEPS[step].fields.forEach((f) => form.onBlur(f))
+    const bad = stepErrors(step)
+    if (bad.length) {
+      document.getElementById(`${idPrefix}-${bad[0]}`)?.focus()
+      return
+    }
+    setStep((s) => Math.min(STEPS.length - 1, s + 1))
+  }
 
   const onSubmit = async (e) => {
     e.preventDefault()
+    if (step < STEPS.length - 1) return next()
     await form.submit()
   }
 
-  if (status === 'demo' || status === 'sent') {
-    return (
-      <div className="px-6 py-10 sm:px-8" role="status" aria-live="polite">
-        {status === 'sent' ? (
-          <>
-            <p className="eyebrow mb-3">Request received</p>
-            <h3 className="text-3xl font-extrabold tracking-[-0.03em] text-charcoal">Thank you.</h3>
-            <p className="mt-3 max-w-md text-charcoal-muted">Your quote request has been sent. Our team will review the details and get back to you.</p>
-          </>
-        ) : (
-          <>
-            <p className="eyebrow mb-3">Demo complete</p>
-            <h3 className="text-3xl font-extrabold tracking-[-0.03em] text-charcoal">Your form passed every check.</h3>
-            <p className="mt-3 max-w-md text-charcoal-muted">
-              Because no form service is connected yet, this request was <strong className="font-semibold text-charcoal">not sent</strong>.
-              Connect an endpoint with VITE_FORM_ENDPOINT to receive real enquiries.
-            </p>
-          </>
-        )}
-        <div className="mt-8 flex flex-wrap gap-3">
-          <button type="button" className="btn-primary" onClick={onDone}>
-            Close
-          </button>
-          <button type="button" className="btn-ghost" onClick={form.reset}>
-            Start a new request
-          </button>
-        </div>
-      </div>
-    )
+  const restart = () => {
+    form.reset()
+    setStep(0)
   }
 
+  const serviceLabel = serviceOptions.find((o) => o.value === values.service)?.label || 'Not chosen'
+
   return (
-    <form noValidate onSubmit={onSubmit} className="px-6 py-6 sm:px-8 sm:py-7" aria-describedby={`${idPrefix}-intro`}>
-      <p id={`${idPrefix}-intro`} className="mb-5 text-[0.95rem] text-charcoal-muted">
-        Share a few details and we will recommend the right way to move your cargo. Fields marked Optional can be left blank.
-      </p>
-      <DemoNotice className="mb-6" />
-      <EnquiryFields idPrefix={idPrefix} {...form} />
-      <div aria-live="polite" className="mt-5 min-h-[1.25rem] text-sm">
-        {form.touched.__all && form.errorCount > 0 && (
-          <p className="text-orange-deep">
-            Please check {form.errorCount === 1 ? 'one field' : `${form.errorCount} fields`} highlighted above.
-          </p>
-        )}
-        {status === 'error' && <p className="text-orange-deep">We could not send your request. Please try again in a moment. ({form.errorMessage})</p>}
-      </div>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-charcoal/10 pt-5">
-        <p className="max-w-xs text-xs text-charcoal-muted">A quote request is not a booking. We will confirm plans and prices with you first.</p>
-        <button type="submit" className="btn-primary" disabled={status === 'submitting'}>
-          {status === 'submitting' ? 'Checking details' : 'Request my quote'}
-          <ArrowRight />
+    <div className="grid md:h-[min(760px,90dvh)] md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+      {/* Route panel */}
+      <aside className="quote-aside relative overflow-hidden text-white">
+        <Img image={images.heroPort} sizes="400px" alt="" className="absolute inset-0 h-full w-full object-cover object-[45%_50%] opacity-35" />
+        <div className="absolute inset-0 bg-gradient-to-b from-charcoal/80 via-charcoal/90 to-charcoal" aria-hidden="true" />
+        <div className="relative flex h-full flex-col p-6 sm:p-8">
+          <Logo tone="light" className="hidden self-start md:inline-flex" />
+          <p className="eyebrow md:mt-10">Get a quote</p>
+          <h2 id={titleId} className="mt-2 text-[1.6rem] font-extrabold leading-[1.08] tracking-[-0.03em] sm:text-[2rem]">
+            Plan your shipment in <span className="serif-i text-[1.1em] text-orange">three</span> steps.
+          </h2>
+
+          <ol className="quote-route mt-6 md:mt-9" aria-label="Steps">
+            {STEPS.map((s, i) => {
+              const state = done || i < step ? 'is-done' : i === step ? 'is-current' : ''
+              return (
+                <li key={s.key} className={`quote-route-step ${state}`} aria-current={!done && i === step ? 'step' : undefined}>
+                  <span className="quote-route-dot" aria-hidden="true">
+                    {state === 'is-done' ? <Check className="h-3.5 w-3.5" /> : i + 1}
+                  </span>
+                  <span>
+                    <span className="block text-[0.95rem] font-extrabold">{s.short}</span>
+                    <span className="hidden text-[0.8rem] text-white/60 md:block">{s.label}</span>
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
+
+          <div className="mt-auto hidden pt-8 md:block">
+            <p className="text-[0.85rem] leading-relaxed text-white/70">Our team reviews every request and replies with a recommended plan and a price. A quote is not a booking.</p>
+            {isDemoMode && (
+              <p className="mt-4 flex gap-2.5 rounded-xl bg-white/10 px-3.5 py-3 text-[0.8rem] leading-snug text-white/85">
+                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-orange" aria-hidden="true" />
+                <span>
+                  <strong className="font-extrabold">Demonstration form.</strong> No form service is connected yet, so nothing you enter here will be sent.
+                </span>
+              </p>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* Steps */}
+      <div className="relative flex min-h-0 flex-col bg-ivory md:overflow-y-auto md:overscroll-contain">
+        <button type="button" onClick={onDone} className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white text-charcoal shadow-soft transition-colors hover:bg-charcoal hover:text-white" aria-label="Close dialog">
+          <Close />
         </button>
+
+        {done ? (
+          <div ref={stage} className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-10" role="status" aria-live="polite">
+            <p className="eyebrow">{status === 'sent' ? 'Request received' : 'Demo complete'}</p>
+            <h3 className="mt-2 text-[1.9rem] font-extrabold leading-tight tracking-[-0.03em] text-charcoal">{status === 'sent' ? 'Thank you. We are on it.' : 'Your request is ready.'}</h3>
+            <p className="mt-2 max-w-md text-[0.95rem] text-charcoal/75">
+              {status === 'sent' ? (
+                'Our team will review your shipment and reply with a plan and a price.'
+              ) : (
+                <>
+                  This form is a demonstration, so this request was <strong className="font-extrabold text-charcoal">not sent</strong>. Connect a form service to receive requests like this one.
+                </>
+              )}
+            </p>
+
+            {/* Ticket */}
+            <div className="quote-ticket mt-7">
+              <div className="flex items-center justify-between gap-4 px-6 pt-5">
+                <span className="text-[0.68rem] font-extrabold uppercase tracking-[0.22em] text-charcoal/50">Shipment request</span>
+                <span className="rounded-full bg-orange/10 px-2.5 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-orange-deep">{serviceLabel}</span>
+              </div>
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-6 pb-5 pt-4">
+                <div className="min-w-0">
+                  <p className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-charcoal/45">From</p>
+                  <p className="truncate text-[1.2rem] font-extrabold text-charcoal">{values.pickup}</p>
+                </div>
+                <span className="quote-ticket-path" aria-hidden="true">
+                  <Box className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 text-right">
+                  <p className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-charcoal/45">To</p>
+                  <p className="truncate text-[1.2rem] font-extrabold text-charcoal">{values.destination}</p>
+                </div>
+              </div>
+              <div className="quote-ticket-tear" aria-hidden="true" />
+              <dl className="grid grid-cols-2 gap-x-6 gap-y-3 px-6 pb-6 pt-4 text-[0.88rem]">
+                <div>
+                  <dt className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-charcoal/45">Preferred date</dt>
+                  <dd className="font-bold text-charcoal">{formatDate(values.date)}</dd>
+                </div>
+                <div>
+                  <dt className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-charcoal/45">Reply to</dt>
+                  <dd className="truncate font-bold text-charcoal">{values.name}</dd>
+                </div>
+                <div className="col-span-2">
+                  <dt className="text-[0.7rem] font-bold uppercase tracking-[0.16em] text-charcoal/45">Cargo</dt>
+                  <dd className="line-clamp-2 text-charcoal/80">{values.cargo}</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div className="mt-7 flex flex-wrap gap-3">
+              <button type="button" className="btn-primary" onClick={onDone}>
+                Close
+              </button>
+              <button type="button" className="btn-ghost" onClick={restart}>
+                Start a new request
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form noValidate onSubmit={onSubmit} className="flex flex-1 flex-col">
+            <div className="px-6 pt-6 sm:px-10 sm:pt-9">
+              <div className="flex items-center gap-3 pr-12">
+                <span className="text-[0.75rem] font-extrabold uppercase tracking-[0.2em] text-orange">
+                  Step {step + 1} of {STEPS.length}
+                </span>
+                <span className="h-[3px] flex-1 overflow-hidden rounded-full bg-charcoal/10" aria-hidden="true">
+                  <span className="block h-full rounded-full bg-orange transition-[width] duration-500 ease-out" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+                </span>
+              </div>
+            </div>
+
+            <div ref={stage} className="flex-1 px-6 pb-6 pt-5 sm:px-10">
+              <h3 className="text-[1.6rem] font-extrabold tracking-[-0.03em] text-charcoal sm:text-[1.85rem]">{STEPS[step].label}</h3>
+
+              {step === 0 && (
+                <div className="mt-5 space-y-5">
+                  <ServicePicker idPrefix={idPrefix} value={values.service} onChange={form.onChange} onBlur={form.onBlur} error={form.errors.service} touched={form.touched} />
+                  <EnquiryFields idPrefix={idPrefix} only={['cargo']} {...form} />
+                </div>
+              )}
+
+              {step === 1 && (
+                <div className="mt-5 space-y-5">
+                  <div className="quote-legs">
+                    <EnquiryFields idPrefix={idPrefix} only={['pickup', 'destination']} layout="stack" {...form} />
+                  </div>
+                  <div className="max-w-xs">
+                    <EnquiryFields idPrefix={idPrefix} only={['date']} layout="stack" {...form} />
+                  </div>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div className="mt-5">
+                  <EnquiryFields idPrefix={idPrefix} only={['name', 'company', 'email', 'phone']} {...form} />
+                  {isDemoMode && <p className="mt-5 text-[0.8rem] text-charcoal/60 md:hidden">Demonstration form: nothing you enter here will be sent.</p>}
+                </div>
+              )}
+
+              <div aria-live="polite" className="mt-4 min-h-[1.25rem] text-sm">
+                {status === 'error' && <p className="text-orange-deep">We could not send your request. Please try again in a moment. ({form.errorMessage})</p>}
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-charcoal/10 bg-ivory/95 px-6 py-4 backdrop-blur sm:px-10">
+              {step > 0 ? (
+                <button type="button" className="btn-ghost" onClick={() => setStep((s) => s - 1)}>
+                  Back
+                </button>
+              ) : (
+                <span className="text-xs text-charcoal/55">Takes about a minute</span>
+              )}
+              <button type="submit" className="btn-primary" disabled={status === 'submitting'}>
+                {step < STEPS.length - 1 ? 'Continue' : status === 'submitting' ? 'Checking details' : 'Request my quote'}
+                <ArrowRight />
+              </button>
+            </div>
+          </form>
+        )}
       </div>
-    </form>
+    </div>
   )
 }

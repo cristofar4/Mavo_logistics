@@ -81,11 +81,13 @@ export default function Dialogs() {
   let eyebrow = ''
   let body = null
   let size = 'md'
+  let bare = false
 
   if (type === 'quote') {
-    title = 'Request a quote'
-    eyebrow = 'Get a quote'
-    body = <QuoteForm key={`q-${dialog.payload.service}`} initialService={dialog.payload.service} onDone={close} />
+    title = 'Get a quote'
+    size = 'xl'
+    bare = true
+    body = <QuoteForm key={`q-${dialog.payload.service}`} initialService={dialog.payload.service} onDone={close} titleId="quote-title" />
   } else if (type === 'service') {
     const s = services.find((x) => x.id === dialog.payload.id)
     title = s?.title
@@ -100,7 +102,7 @@ export default function Dialogs() {
   }
 
   return (
-    <Modal open={open} onClose={close} title={title} eyebrow={eyebrow} size={size}>
+    <Modal open={open} onClose={close} title={title} eyebrow={eyebrow} size={size} bare={bare} labelledBy={bare ? 'quote-title' : undefined}>
       {body}
     </Modal>
   )

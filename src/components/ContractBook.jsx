@@ -6,12 +6,25 @@ import { useFocusTrap } from '../hooks/useFocusTrap'
 import { useScrollLock } from '../hooks/useScrollLock'
 import { isDemoMode } from '../lib/submitEnquiry'
 import EnquiryFields from './EnquiryFields'
+import ServicePicker from './ServicePicker'
 import DemoNotice from './DemoNotice'
 import SignaturePad from './SignaturePad'
 import { LogoA, LogoMark } from './Logo'
 import { ArrowRight, Close, Pen } from './Icons'
 
 const ID = 'partner'
+const today = () => new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+
+function Clause({ no, children }) {
+  return (
+    <h3 className="clause">
+      <span className="clause-no" aria-hidden="true">
+        {no}
+      </span>
+      {children}
+    </h3>
+  )
+}
 
 /*
  * The partnership contract book.
@@ -231,24 +244,34 @@ export default function ContractBook({ open, originRef, onFinished }) {
             <div className="h-full overflow-y-auto overscroll-contain md:contents">
               {/* Left page */}
               <section ref={left} aria-label="Your details" className="book-page book-page-left md:h-full md:overflow-y-auto md:overscroll-contain">
-                <div data-page-item className="flex items-center justify-between text-charcoal">
-                  <span className="flex items-end text-[1.3rem] font-extrabold leading-none">
-                    MOV
-                    <LogoA className="mb-[0.15em] ml-[0.03em] h-[0.72em] w-auto" />
+                {/* Letterhead */}
+                <div data-page-item className="flex items-start justify-between gap-4 border-b-2 border-charcoal pb-3 text-charcoal">
+                  <span className="flex flex-col">
+                    <span className="flex items-end text-[1.35rem] font-extrabold leading-none">
+                      MOV
+                      <LogoA className="mb-[0.15em] ml-[0.03em] h-[0.72em] w-auto" />
+                    </span>
+                    <span className="mt-1 pl-[0.1em] text-[0.5rem] font-bold uppercase tracking-[0.55em] text-charcoal/60">Logistics</span>
                   </span>
-                  <span className="hidden pr-6 text-[0.62rem] font-bold uppercase tracking-[0.3em] text-charcoal/50 sm:inline">Partnership enquiry</span>
+                  <span className="pr-6 text-right sm:pr-0">
+                    <span className="block text-[0.62rem] font-extrabold uppercase tracking-[0.24em] text-charcoal">Partnership enquiry</span>
+                    <span className="mt-1 block text-[0.72rem] text-charcoal/55">Dated {today()}</span>
+                  </span>
                 </div>
-                <h2 data-page-item id={`${ID}-title`} className="mt-7 text-[1.9rem] font-extrabold leading-[1.05] tracking-[-0.035em] text-charcoal sm:text-[2.3rem]">
+                <h2 data-page-item id={`${ID}-title`} className="mt-6 text-[1.9rem] font-extrabold leading-[1.05] tracking-[-0.035em] text-charcoal sm:text-[2.25rem]">
                   Let’s plan your <span className="serif-i text-[1.1em] text-orange">journey</span> together.
                 </h2>
-                <p data-page-item className="mt-3 text-[0.95rem] leading-relaxed text-charcoal/75">
-                  Fill in these pages and sign at the end. Our team reviews every enquiry and plans the details with you before anything is agreed.
+                <p data-page-item className="mt-3 text-[0.92rem] leading-relaxed text-charcoal/75">
+                  Complete the three clauses and sign at the end. Our team reviews every enquiry and agrees the details with you before anything moves.
                 </p>
                 <div data-page-item>
-                  <DemoNotice className="mt-5" />
+                  <DemoNotice className="mt-4" />
                 </div>
                 <div data-page-item className="mt-6">
-                  <EnquiryFields idPrefix={ID} tone="paper" only={['name', 'company', 'email', 'phone']} {...form} />
+                  <Clause no="1">The parties</Clause>
+                  <div className="mt-4">
+                    <EnquiryFields idPrefix={ID} tone="paper" only={['name', 'company', 'email', 'phone']} {...form} />
+                  </div>
                 </div>
                 <p data-page-item className="mt-6 hidden text-right text-xs italic text-charcoal/40 md:block" aria-hidden="true">
                   Page 1 of 2
@@ -257,14 +280,21 @@ export default function ContractBook({ open, originRef, onFinished }) {
 
               {/* Right page */}
               <section ref={right} aria-label="Your shipment and signature" className="book-page book-page-right md:h-full md:overflow-y-auto md:overscroll-contain">
-                <h3 data-page-item className="text-sm font-extrabold uppercase tracking-[0.2em] text-charcoal">Your shipment</h3>
-                <div data-page-item className="mt-4">
-                  <EnquiryFields idPrefix={ID} tone="paper" only={['service', 'pickup', 'destination', 'cargo', 'date']} {...form} />
+                <div data-page-item>
+                  <Clause no="2">The shipment</Clause>
+                  <div className="mt-4 space-y-4">
+                    <ServicePicker idPrefix={ID} variant="chips" value={form.values.service} onChange={form.onChange} onBlur={form.onBlur} error={form.errors.service} touched={form.touched} />
+                    <EnquiryFields idPrefix={ID} tone="paper" only={['pickup', 'destination', 'cargo', 'date']} {...form} />
+                  </div>
                 </div>
 
-                <div data-page-item className="relative mt-6" data-seal-anchor>
-                  <p className="mb-1.5 flex items-center gap-2 text-sm font-bold text-charcoal" id={`${ID}-sig-label`}>
-                    <Pen /> Signature
+                <div data-page-item className="relative mt-7" data-seal-anchor>
+                  <Clause no="3">Signature</Clause>
+                  <p className="mb-1.5 mt-4 flex items-center justify-between gap-2 text-sm font-bold text-charcoal" id={`${ID}-sig-label`}>
+                    <span className="flex items-center gap-2">
+                      <Pen /> Sign here
+                    </span>
+                    <span className="text-xs font-semibold text-charcoal/50">Signed on {today()}</span>
                   </p>
                   <SignaturePad ref={sig} id={`${ID}-signature`} onChange={setSigEmpty} invalid={!!extraErrors.signature} describedBy={extraErrors.signature ? `${ID}-signature-error` : `${ID}-sig-label`} />
                   {sealed && (

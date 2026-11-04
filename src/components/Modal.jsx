@@ -8,7 +8,7 @@ import { Close } from './Icons'
  * Accessible dialog: portal, focus trap, Escape and backdrop close,
  * scroll lock, focus restore and a 300ms enter/exit transition.
  */
-export default function Modal({ open, onClose, title, eyebrow, children, size = 'md', labelledBy }) {
+export default function Modal({ open, onClose, title, eyebrow, children, size = 'md', labelledBy, bare = false }) {
   const [mounted, setMounted] = useState(open)
   const [visible, setVisible] = useState(false)
   const panelRef = useRef(null)
@@ -31,7 +31,7 @@ export default function Modal({ open, onClose, title, eyebrow, children, size = 
 
   if (!mounted) return null
 
-  const widths = { sm: 'max-w-lg', md: 'max-w-2xl', lg: 'max-w-4xl' }
+  const widths = { sm: 'max-w-lg', md: 'max-w-2xl', lg: 'max-w-4xl', xl: 'max-w-[68rem]' }
 
   return createPortal(
     <div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center sm:p-6" data-state={visible ? 'open' : 'closed'}>
@@ -50,17 +50,19 @@ export default function Modal({ open, onClose, title, eyebrow, children, size = 
           visible ? 'translate-y-0 opacity-100 sm:scale-100' : 'translate-y-8 opacity-0 sm:scale-[.98]'
         }`}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-charcoal/10 px-6 py-5 sm:px-8">
-          <div>
-            {eyebrow && <p className="eyebrow mb-1.5">{eyebrow}</p>}
-            <h2 id={titleId} className="text-2xl font-medium tracking-tight text-charcoal sm:text-[1.7rem]">
-              {title}
-            </h2>
+        {!bare && (
+          <div className="flex items-start justify-between gap-4 border-b border-charcoal/10 px-6 py-5 sm:px-8">
+            <div>
+              {eyebrow && <p className="eyebrow mb-1.5">{eyebrow}</p>}
+              <h2 id={titleId} className="text-2xl font-extrabold tracking-[-0.03em] text-charcoal sm:text-[1.7rem]">
+                {title}
+              </h2>
+            </div>
+            <button type="button" onClick={onClose} className="icon-btn -mr-2 shrink-0" aria-label="Close dialog">
+              <Close />
+            </button>
           </div>
-          <button type="button" onClick={onClose} className="icon-btn -mr-2 shrink-0" aria-label="Close dialog">
-            <Close />
-          </button>
-        </div>
+        )}
         <div className="overflow-y-auto overscroll-contain">{children}</div>
       </div>
     </div>,

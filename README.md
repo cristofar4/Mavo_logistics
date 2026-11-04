@@ -15,7 +15,9 @@ Requires Node 18 or newer.
 
 ## Connecting the forms
 
-Both the **Get a quote** form and the **partnership contract book** go through `src/lib/submitEnquiry.js`.
+Both the **Get a quote** planner and the **partnership contract book** go through `src/lib/submitEnquiry.js`.
+
+The quote planner is a three step dialog (**Your cargo**, **The route**, **Your details**) with a route panel showing progress. Each step is validated before moving on, services are picked from photo cards, pickup and destination are drawn as the two ends of a route, and the result is shown as a shipment ticket.
 
 * With no endpoint configured the forms run in **demonstration mode**. They show a visible "Demonstration form" notice, validate every field, and never claim a submission was sent.
 * To receive real enquiries, copy `.env.example` to `.env` and set:
@@ -46,9 +48,9 @@ Both the **Get a quote** form and the **partnership contract book** go through `
 
 `src/components/ContractScene.jsx` and `src/components/ContractBook.jsx`
 
-1. When about half of the section is in view, a GSAP timeline plays once. The representative's pose is fixed; the motion comes from camera, light and depth: he walks out from behind the plaster pillar turning toward the visitor in 3D, a warm light sweeps the wall and his shadow lands on it, the speech cloud inflates from its tail with **"Hi there!"**, the headline rises word by word, then the cloud asks **"Ready to sign with us?"** while a gloss runs over the contract and the pen tip glints. Afterwards the layers shift very slightly with the pointer on desktop.
-2. **Yes, let's go** (or **Let's work together**) blurs the page and the contract book flies out of the contract in his hands. The copper foil lettering shimmers, the cover swings open, a page turns and a ribbon bookmark drops.
-3. The pages hold the enquiry form and a signature pad (mouse, pen or finger, or type your name).
+1. When about half of the section is in view, a GSAP timeline plays once. The representative is a real photograph (a smiling team member in a hard hat with a pen and an orange clipboard) and his pose never changes; the motion comes from camera, light and depth: he slides out from behind the plaster pillar turning toward the visitor in 3D, a warm light sweeps the wall and his shadow lands on it, the speech cloud inflates with **"Hi there!"**, the headline rises word by word, then the cloud asks **"Ready to sign with us?"** and two reply chips (**Yes, let's go** and **Not yet**) pop in under the cloud, while a gloss runs over the clipboard and the pen tip glints.
+2. **Yes, let's go** (or **Let's work together**) blurs the page and the contract book flies out of his clipboard. The copper foil lettering shimmers, the cover swings open, a page turns and a ribbon bookmark drops.
+3. The pages are laid out like an agreement: a MOVA letterhead dated today, then three numbered clauses: **1 The parties** (name, company, email, phone), **2 The shipment** (service chips, pickup, destination, cargo, date) and **3 Signature** (signature pad with mouse, pen or finger, or type your name, plus the enquiry confirmation).
 4. **Sign** validates everything, an orange MOVA seal stamps onto the signature, the book closes, flies back to him, the blur lifts and the cloud says thank you. In demo mode the message says plainly that nothing was sent.
 5. Closing the book without signing makes the cloud say "No rush".
 
@@ -68,7 +70,7 @@ Images are in `public/images` as WebP at 800 and 1600 pixels wide. They carry wi
 | --- | --- |
 | `hero-port` (white truck at the port), `fleet-heavy` (low loader) | Supplied by MOVA |
 | `road`, `air`, `sea`, `warehouse` | Supplied by MOVA (mountain road truck, cargo plane, container ship) and Unsplash photo `1616401784845-180882ba9ba8` (warehouse) |
-| `rep-body`, `rep-hand` | The MOVA representative from the design reference, upscaled, cut out and split into body and pen hand layers |
+| `rep-worker` | Unsplash photo `1659353590896-3ad327ec4b42` (Fotos), cut out from its studio background |
 | `sea-aerial` | Unsplash photo `1585713181935-d5f622cc2415` |
 | `retail` | Unsplash photo `1764795849885-e226e3cabe87` |
 | `manufacturing` | Unsplash photo `1647427060118-4911c9821b82` |
@@ -84,7 +86,7 @@ Unsplash photos are used under the Unsplash License. View any of them at `https:
 1. **Form endpoint.** Set `VITE_FORM_ENDPOINT` (see above).
 2. **Contact details and social links** in `site.js`.
 3. **Privacy policy and terms.** Placeholder text is shown in the dialogs.
-4. **Sharper representative photo.** He is cut from the low resolution design reference. For a sharper result, photograph a MOVA team member in the same pose and replace `rep-body-*` and `rep-hand-*`, then update `representativeGeometry` in `site.js`. A transparent video can replace the still via `representativeVideo`.
+4. **Your own representative photo.** The scene uses a free stock photo. To feature a MOVA team member, photograph them in a similar pose (pen in one hand, clipboard or contract in the other) against a plain wall, cut them out, replace `rep-worker-800.webp` and `rep-worker-1008.webp`, then update `representativeGeometry` in `site.js` (`aspect`, `penTip`, `contract`). A transparent video can replace the still via `representativeVideo`.
 5. **Real service areas.** The map is illustrative; edit `NODES` and `ROUTES` in `Coverage.jsx`.
 6. **Own fleet photography.** The van and highway truck are stock photos.
 

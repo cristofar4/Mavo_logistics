@@ -60,22 +60,17 @@ export const images = {
   fleetHeavy: { name: 'fleet-heavy', w: 1600, h: 819, alt: 'Heavy freight truck carrying a large steel vessel strapped to a low loader' },
   worldMap: { name: 'world-dark', w: 1600, h: 736, alt: '' },
   /*
-   * Representative for the partnership scene (the MOVA team member from the design reference),
-   * in two layers from the same 1712 x 1480 image:
-   *   rep-body: the person with the pen hand removed (shirt restored behind it)
-   *   rep-hand: the pen hand, positioned with `handBox`, so it can sit in front of the wall
-   * His far body edge is straight at `edgeRatio` of the image width and hides behind the wall.
-   * Replace with your own transparent photo shoot assets using the same framing (see README).
+   * Representative for the partnership scene: a real photograph (Unsplash License, photo
+   * 1659353590896-3ad327ec4b42 by Fotos), cut out from its studio background. He holds a pen
+   * and an orange clipboard. Replace with your own team member in the same framing (see README).
    */
-  repBody: { name: 'rep-body', w: 1600, h: 1383, alt: 'Smiling MOVA Logistics representative holding an open contract and offering a pen' },
-  repHand: { name: 'rep-hand', w: 396, h: 377, alt: '' },
+  repWorker: { name: 'rep-worker', w: 1008, h: 1486, widths: [800, 1008], alt: 'Smiling MOVA Logistics team member in a hard hat holding a pen and an orange clipboard' },
 }
 
 export const representativeGeometry = {
-  edgeRatio: 0.1437, // straight body edge, as a fraction of image width
-  aspect: 1712 / 1480,
-  handBox: { left: 5.2, top: 56.69, width: 24.77, height: 27.23 }, // percent of the body image
-  penTip: { x: 28.5, y: 74.9 }, // where the pen tip glints, percent of the body image
+  aspect: 1008 / 1486, // width / height of the photo
+  penTip: { x: 22.8, y: 35.8 }, // where the pen tip glints, percent of the photo
+  contract: { left: 25, top: 61, width: 66, height: 24 }, // the clipboard, percent of the photo
 }
 
 /*

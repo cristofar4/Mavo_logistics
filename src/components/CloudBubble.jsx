@@ -21,7 +21,7 @@ const CloudBubble = forwardRef(function CloudBubble({ children, className = '', 
           <circle cx="86" cy="150" r="44" />
         </g>
       </svg>
-      <div data-cloud-content className="relative flex h-full flex-col items-center justify-center px-[13%] pb-[16%] pt-[12%] text-center">
+      <div data-cloud-content className="relative flex h-full min-h-[7.5rem] flex-col items-center justify-center px-[15%] pb-[17%] pt-[13%] text-center">
         {children}
       </div>
     </div>
