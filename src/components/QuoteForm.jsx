@@ -7,7 +7,7 @@ import EnquiryFields from './EnquiryFields'
 import ServicePicker from './ServicePicker'
 import Img from './Img'
 import Logo from './Logo'
-import { ArrowRight, Box, Check, Close } from './Icons'
+import { ArrowRight, Box, Check } from './Icons'
 
 /*
  * Quote planner: three short steps with a route panel beside them, then a booking ticket summary.
@@ -22,6 +22,70 @@ const STEPS = [
   { key: 'where', label: 'Where is it going?', short: 'The route', fields: ['pickup', 'destination', 'date'] },
   { key: 'who', label: 'Who should we reply to?', short: 'Your details', fields: ['name', 'company', 'email', 'phone'] },
 ]
+
+/*
+ * Pickup and destination as one route card: the pins and the dotted line live in their own
+ * column, so they never cross the labels. The swap button reverses the route.
+ */
+function RouteFields({ idPrefix, form }) {
+  const { values, errors, touched, onChange, onBlur } = form
+  const rows = [
+    { name: 'pickup', label: 'Pickup location', hint: 'From', placeholder: 'Town, city or postcode', pin: 'is-from' },
+    { name: 'destination', label: 'Destination', hint: 'To', placeholder: 'Town, city or country', pin: 'is-to' },
+  ]
+  const shown = (n) => (touched[n] || touched.__all) && errors[n]
+  const swap = () => {
+    const a = values.pickup
+    onChange('pickup', values.destination)
+    onChange('destination', a)
+  }
+  return (
+    <div>
+      <div className="route-box">
+        <span className="route-line" aria-hidden="true" />
+        {rows.map((r, i) => {
+          const id = `${idPrefix}-${r.name}`
+          const err = shown(r.name)
+          return (
+            <div key={r.name} className={`route-row ${err ? 'is-invalid' : ''} ${i === 0 ? 'border-b border-charcoal/10' : ''}`}>
+              <span className={`route-pin ${r.pin}`} aria-hidden="true" />
+              <div className="min-w-0 flex-1">
+                <label htmlFor={id} className="flex items-center gap-2 text-[0.72rem] font-extrabold uppercase tracking-[0.14em] text-charcoal/55">
+                  {r.label}
+                </label>
+                <input
+                  id={id}
+                  name={r.name}
+                  value={values[r.name]}
+                  onChange={(e) => onChange(r.name, e.target.value)}
+                  onBlur={() => onBlur(r.name)}
+                  placeholder={r.placeholder}
+                  autoComplete="off"
+                  aria-required="true"
+                  aria-invalid={err ? 'true' : undefined}
+                  aria-describedby={err ? `${id}-error` : undefined}
+                  className="route-input"
+                />
+              </div>
+            </div>
+          )
+        })}
+        <button type="button" onClick={swap} className="route-swap" aria-label="Swap pickup and destination" title="Swap pickup and destination">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+            <path d="M8 4v15M8 4L4.5 7.5M8 4l3.5 3.5M16 20V5M16 20l3.5-3.5M16 20l-3.5-3.5" />
+          </svg>
+        </button>
+      </div>
+      {rows.map((r) =>
+        shown(r.name) ? (
+          <p key={r.name} id={`${idPrefix}-${r.name}-error`} className="field-error">
+            {errors[r.name]}
+          </p>
+        ) : null,
+      )}
+    </div>
+  )
+}
 
 function formatDate(v) {
   if (!v) return 'Flexible'
@@ -83,8 +147,8 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
         <div className="absolute inset-0 bg-gradient-to-b from-charcoal/80 via-charcoal/90 to-charcoal" aria-hidden="true" />
         <div className="relative flex h-full flex-col p-6 sm:p-8">
           <Logo tone="light" className="hidden self-start md:inline-flex" />
-          <p className="eyebrow md:mt-10">Get a quote</p>
-          <h2 id={titleId} className="mt-2 text-[1.6rem] font-extrabold leading-[1.08] tracking-[-0.03em] sm:text-[2rem]">
+          <p className="eyebrow pr-14 md:mt-10 md:pr-0">Get a quote</p>
+          <h2 id={titleId} className="mt-2 pr-14 text-[1.6rem] md:pr-0 font-extrabold leading-[1.08] tracking-[-0.03em] sm:text-[2rem]">
             Plan your shipment in <span className="serif-i text-[1.1em] text-orange">three</span> steps.
           </h2>
 
@@ -121,10 +185,6 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
 
       {/* Steps */}
       <div className="relative flex min-h-0 flex-col bg-ivory md:overflow-y-auto md:overscroll-contain">
-        <button type="button" onClick={onDone} className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white text-charcoal shadow-soft transition-colors hover:bg-charcoal hover:text-white" aria-label="Close dialog">
-          <Close />
-        </button>
-
         {done ? (
           <div ref={stage} className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-10" role="status" aria-live="polite">
             <p className="eyebrow">{status === 'sent' ? 'Request received' : 'Demo complete'}</p>
@@ -186,8 +246,9 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
           </div>
         ) : (
           <form noValidate onSubmit={onSubmit} className="flex flex-1 flex-col">
-            <div className="px-6 pt-6 sm:px-10 sm:pt-9">
-              <div className="flex items-center gap-3 pr-12">
+            {/* Sticky step bar: the close button sits on it, so content never scrolls under the X */}
+            <div className="sticky top-0 z-10 bg-ivory/90 px-6 pb-4 pt-[22px] backdrop-blur-md sm:px-10 sm:pt-[26px]">
+              <div className="flex items-center gap-3 pr-14">
                 <span className="text-[0.75rem] font-extrabold uppercase tracking-[0.2em] text-orange">
                   Step {step + 1} of {STEPS.length}
                 </span>
@@ -197,7 +258,7 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
               </div>
             </div>
 
-            <div ref={stage} className="flex-1 px-6 pb-6 pt-5 sm:px-10">
+            <div ref={stage} className="flex-1 px-6 pb-6 pt-2 sm:px-10">
               <h3 className="text-[1.6rem] font-extrabold tracking-[-0.03em] text-charcoal sm:text-[1.85rem]">{STEPS[step].label}</h3>
 
               {step === 0 && (
@@ -209,9 +270,7 @@ export default function QuoteForm({ initialService = '', onDone, titleId }) {
 
               {step === 1 && (
                 <div className="mt-5 space-y-5">
-                  <div className="quote-legs">
-                    <EnquiryFields idPrefix={idPrefix} only={['pickup', 'destination']} layout="stack" {...form} />
-                  </div>
+                  <RouteFields idPrefix={idPrefix} form={form} />
                   <div className="max-w-xs">
                     <EnquiryFields idPrefix={idPrefix} only={['date']} layout="stack" {...form} />
                   </div>

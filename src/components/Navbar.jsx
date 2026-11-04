@@ -6,7 +6,8 @@ import { useScrollLock } from '../hooks/useScrollLock'
 import { prefersReducedMotion } from '../lib/gsap'
 import Img from './Img'
 import Logo from './Logo'
-import { ArrowRight, ArrowUpRight, ChevronDown, Close, Menu } from './Icons'
+import CloseButton from './CloseButton'
+import { ArrowRight, ArrowUpRight, ChevronDown, Menu } from './Icons'
 
 /*
  * Dock navigation.
@@ -410,9 +411,7 @@ export default function Navbar() {
         >
           <div className="flex items-center justify-between">
             <Logo tone="light" />
-            <button type="button" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-orange" aria-label="Close menu" onClick={() => setOpen(false)}>
-              <Close className="h-6 w-6" />
-            </button>
+            <CloseButton tone="dark" label="Close menu" onClick={() => setOpen(false)} />
           </div>
           <p className="mt-9 text-[0.72rem] font-extrabold uppercase tracking-[0.22em] text-orange">Your route through MOVA</p>
           <ol ref={mListRef} className="relative mt-4">

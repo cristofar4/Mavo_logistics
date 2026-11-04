@@ -10,7 +10,8 @@ import ServicePicker from './ServicePicker'
 import DemoNotice from './DemoNotice'
 import SignaturePad from './SignaturePad'
 import { LogoA, LogoMark } from './Logo'
-import { ArrowRight, Close, Pen } from './Icons'
+import { ArrowRight, Pen } from './Icons'
+import CloseButton from './CloseButton'
 
 const ID = 'partner'
 const today = () => new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -228,9 +229,7 @@ export default function ContractBook({ open, originRef, onFinished }) {
       <div className="absolute inset-0 bg-charcoal/40 backdrop-blur-[14px] backdrop-saturate-[.8]" onClick={() => close(null)} aria-hidden="true" />
 
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={`${ID}-title`} className="relative [perspective:2600px]">
-        <button type="button" onClick={() => close(null)} className="icon-btn absolute -top-1 right-1 z-30 bg-white shadow-soft sm:-right-4 sm:-top-4" aria-label="Close the contract book">
-          <Close />
-        </button>
+        <CloseButton onClick={() => close(null)} label="Close the contract book" className="absolute -top-2 right-0 z-30 sm:-right-5 sm:-top-5" />
 
         <form ref={book} noValidate onSubmit={onSubmit} className="relative h-[min(740px,90dvh)] w-[min(1080px,94vw)] [transform-style:preserve-3d]">
           {/* Hardcover boards behind the pages. The left board only shows once the cover opens. */}

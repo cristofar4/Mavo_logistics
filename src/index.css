@@ -772,6 +772,88 @@
     @apply translate-x-0.5;
   }
 
+  /* Close button: round and frosted, opens into a "Close" pill on hover or focus */
+  .close-btn {
+    @apply inline-flex h-11 items-center rounded-full text-charcoal outline-none;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow:
+      inset 0 1px 0 #fff,
+      0 0 0 1px rgba(27, 33, 33, 0.09),
+      0 10px 22px -12px rgba(27, 33, 33, 0.55);
+    backdrop-filter: blur(10px) saturate(1.4);
+    -webkit-backdrop-filter: blur(10px) saturate(1.4);
+    transition:
+      background-color 300ms ease,
+      color 300ms ease,
+      box-shadow 300ms ease,
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .close-btn-icon {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center;
+  }
+  .close-btn-icon svg {
+    transition: transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .close-btn-text {
+    @apply flex items-center gap-1.5 overflow-hidden whitespace-nowrap text-[0.85rem] font-extrabold;
+    max-width: 0;
+    opacity: 0;
+    padding-left: 0;
+    transition:
+      max-width 400ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 250ms ease,
+      padding 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .close-btn-kbd {
+    @apply hidden rounded-[5px] px-1.5 py-[1px] font-sans text-[0.62rem] font-bold uppercase tracking-[0.06em];
+    background: rgba(255, 255, 255, 0.16);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .close-btn-kbd {
+      display: inline-block;
+    }
+    .close-btn:hover .close-btn-text {
+      max-width: 7rem;
+      opacity: 1;
+      padding-left: 1rem;
+    }
+  }
+  .close-btn:focus-visible .close-btn-text {
+    max-width: 7rem;
+    opacity: 1;
+    padding-left: 1rem;
+  }
+  .close-btn:hover,
+  .close-btn:focus-visible {
+    background: #1b2121;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .close-btn:hover .close-btn-icon svg,
+  .close-btn:focus-visible .close-btn-icon svg {
+    transform: rotate(90deg);
+  }
+  .close-btn:focus-visible {
+    box-shadow:
+      0 0 0 3px #fff,
+      0 0 0 5px #ea6a1f;
+  }
+  .close-btn:active {
+    transform: scale(0.95);
+  }
+  .close-btn.is-dark {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.12);
+  }
+  .close-btn.is-dark:hover,
+  .close-btn.is-dark:focus-visible {
+    background: #ea6a1f;
+  }
+
   /* Service picker */
   .svc-card {
     @apply relative block cursor-pointer;
@@ -875,42 +957,60 @@
     color: #fff;
     box-shadow: none;
   }
-  /* Pickup and destination drawn as the two ends of a route */
-  .quote-legs input {
-    padding-left: 2.6rem;
+  /* Pickup and destination as one route card */
+  .route-box {
+    @apply relative overflow-hidden rounded-2xl bg-white transition-shadow duration-300;
+    box-shadow:
+      0 0 0 1px rgba(27, 33, 33, 0.12),
+      0 8px 20px -14px rgba(27, 33, 33, 0.45);
   }
-  .quote-legs > div > div {
-    position: relative;
+  .route-box:focus-within {
+    box-shadow:
+      0 0 0 2px #ea6a1f,
+      0 0 0 6px rgba(234, 106, 31, 0.14);
   }
-  .quote-legs > div > div::after {
-    content: '';
-    position: absolute;
-    left: 15px;
-    top: calc(26px + 17px);
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    pointer-events: none;
+  .route-row {
+    @apply relative flex items-center gap-4 py-3 pl-4 pr-16 transition-colors duration-300;
   }
-  .quote-legs > div > div:first-child::after {
+  .route-row.is-invalid {
+    background: rgba(251, 227, 210, 0.45);
+  }
+  .route-pin {
+    @apply relative z-[1] h-3.5 w-3.5 shrink-0 rounded-full;
+  }
+  .route-pin.is-from {
     background: #fff;
     box-shadow: 0 0 0 3px #ea6a1f;
   }
-  .quote-legs > div > div:last-child::after {
+  .route-pin.is-to {
     background: #ea6a1f;
-    box-shadow: 0 0 0 3px rgba(234, 106, 31, 0.25);
+    box-shadow: 0 0 0 4px rgba(234, 106, 31, 0.2);
   }
-  .quote-legs > div > div:first-child::before {
-    content: '';
+  /* Dotted line between the pins, in the pin column only */
+  .route-line {
     position: absolute;
-    left: 20px;
-    top: calc(26px + 33px);
-    bottom: calc(-1rem - 26px - 17px);
+    left: calc(1rem + 6px);
+    top: 25%;
+    bottom: 25%;
     width: 2px;
     background: repeating-linear-gradient(180deg, rgba(27, 33, 33, 0.35) 0 4px, transparent 4px 8px);
-    pointer-events: none;
-    z-index: 1;
   }
+  .route-input {
+    @apply mt-0.5 block w-full bg-transparent text-[1.02rem] font-semibold text-charcoal outline-none placeholder:font-normal placeholder:text-charcoal/40;
+    min-height: 30px;
+  }
+  .route-swap {
+    @apply absolute right-4 top-1/2 z-[2] flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-ivory text-charcoal outline-none transition-[background-color,color,transform] duration-300;
+    box-shadow: 0 0 0 1px rgba(27, 33, 33, 0.12);
+  }
+  .route-swap:hover {
+    @apply bg-charcoal text-white;
+    transform: translateY(-50%) rotate(180deg);
+  }
+  .route-swap:focus-visible {
+    box-shadow: 0 0 0 2px #ea6a1f;
+  }
+
   /* Ticket summary */
   .quote-ticket {
     @apply relative rounded-[20px] bg-white;

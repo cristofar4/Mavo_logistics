@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { useScrollLock } from '../hooks/useScrollLock'
-import { Close } from './Icons'
+import CloseButton from './CloseButton'
 
 /*
  * Accessible dialog: portal, focus trap, Escape and backdrop close,
@@ -58,11 +58,11 @@ export default function Modal({ open, onClose, title, eyebrow, children, size = 
                 {title}
               </h2>
             </div>
-            <button type="button" onClick={onClose} className="icon-btn -mr-2 shrink-0" aria-label="Close dialog">
-              <Close />
-            </button>
+            <CloseButton onClick={onClose} label="Close dialog" className="-mr-1 shrink-0" />
           </div>
         )}
+        {/* In bare mode the close button belongs to the frame, so it stays put while the content scrolls */}
+        {bare && <CloseButton onClick={onClose} label="Close dialog" className="absolute right-3 top-3 z-30 sm:right-4 sm:top-4" />}
         <div className="overflow-y-auto overscroll-contain">{children}</div>
       </div>
     </div>,
